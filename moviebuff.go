@@ -66,7 +66,7 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 	return movie, nil
 }
 
-// GetPerson a person and their basic details.
+// GetPerson fetch a person and his/her basic details.
 // The people in the database include actors, directors, support personnel, etc.
 // Moviebuff aims to document most, if not all, of the individuals involved in a film.
 func (m *Moviebuff) GetPerson(id string) (*Person, error) {
@@ -102,4 +102,41 @@ func (m *Moviebuff) GetPerson(id string) (*Person, error) {
 	}
 
 	return person, nil
+}
+
+// GetEntity fetch an entity and its basic details.
+// Entities are usually organizations like production companies, service providers, etc.
+func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
+	r, err := prepareRequest(m.token, "/resources/entities/"+id)
+	if err != nil {
+		m.l.Println("Unable to create Request:", err)
+		return nil, err
+	}
+
+	res, err := new(http.Client).Do(r)
+	if err != nil {
+		m.l.Println("Unable to make Request:", err)
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		m.l.Println("Got invalid res code. Status: ", res.StatusCode)
+		return nil, ErrResponseNotReceived
+	}
+
+	content, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		m.l.Println("Unable to read res body: ", err)
+		return nil, err
+	}
+
+	entity := new(Entity)
+	err = json.Unmarshal(content, entity)
+	if err != nil {
+		m.l.Println("Unable to unmarshal res body: ", err)
+		return nil, err
+	}
+
+	return entity, nil
 }
