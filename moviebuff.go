@@ -41,7 +41,8 @@ func (m *Moviebuff) Init(token string, l logger) {
 	m.token = token
 }
 
-// GetMovie fetch a movie and its basic details for given resource identifier.
+// GetMovie fetch a movie and its basic details for given resource uuid.
+// Instead of the UUID, this can also be the URL of the movie as seen on moviebuff.com, like 12-years-a-slave
 // Details include release dates, certifications, cast, crew, trailers, posters, purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
 func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
@@ -79,7 +80,8 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 	return movie, nil
 }
 
-// GetPerson fetch a person and his/her basic details.
+// GetPerson fetch a person and his/her basic details with UUID.
+// Instead of the UUID, this can also be the URL of the person as seen on moviebuff.com, like amitabh-bachchan
 // The people in the database include actors, directors, support personnel, etc.
 // Moviebuff aims to document most, if not all, of the individuals involved in a film.
 func (m *Moviebuff) GetPerson(id string) (*Person, error) {
@@ -117,7 +119,8 @@ func (m *Moviebuff) GetPerson(id string) (*Person, error) {
 	return person, nil
 }
 
-// GetEntity fetch an entity and its basic details.
+// GetEntity fetch an entity and its basic details for UUID.
+// Instead of the UUID, this can also be the URL of the company as seen on moviebuff.com: yash-raj-films .
 // Entities are usually organizations like production companies, service providers, etc.
 func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 	r, err := prepareRequest(m.token, "/resources/entities/"+id)
@@ -154,11 +157,14 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 	return entity, nil
 }
 
-// GetResource fetch list of resource of type resourceType
-// resourceType value can be movies, people, entities and theatres in moviebuff.
+// GetResource fetch list of resource of type resourceType.
+// resourceType may be one of the following movies, people, entities, theatres
+// limit represents the number of records to fetch in a single request.
+// The actual count can be lower than the provided limit. Max value is 50.
+// page represents the page number in the pagination. It starts from 1.
 func (m *Moviebuff) GetResources(resourceType string, limit, page int) (*Resources, error) {
 	r, err := prepareRequest(m.token,
-		"/resources/"+resourceType+"/limit="+strconv.Itoa(limit)+"&page="+strconv.Itoa(page))
+		"/resources/"+resourceType+"?limit="+strconv.Itoa(limit)+"&page="+strconv.Itoa(page))
 	if err != nil {
 		m.l.Println("Unable to create Request:", err)
 		return nil, err
