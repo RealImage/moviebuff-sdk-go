@@ -80,21 +80,21 @@ type Movie struct {
 		URL          string `json:"url"`
 	} `json:"links"`
 
-	// An array containing the links to various purchase channels of movie, its songs etc.
+	// An list containing the links to various purchase channels of movie, its songs etc.
 	PurchaseLinks []struct {
 		DisplayClass string `json:"displayClass"`
 		Name         string `json:"name"`
 		URL          string `json:"url"`
 	} `json:"purchaseLinks"`
 
-	// An array of objects each having a name and data. Here name contains the type of the tech data and data which may
-	// be an array of strings or a string.
+	// An list of objects each having a name and data. Here name contains the type of the tech data and data which may
+	// be an list of strings or a string.
 	TechDetails []struct {
 		Name string   `json:"name"`
 		Data []string `json:"data"`
 	} `json:"techDetails"`
 
-	// An array containing the trivia of the movie.
+	// An list containing the trivia of the movie.
 	Trivia []string `json:"trivia"`
 
 	// An object containing the value and the count of the ratings for the movie.
@@ -109,7 +109,7 @@ type Movie struct {
 		Count int    `json:"count"`
 	} `json:"musicRating"`
 
-	// An array containing the cast of the movie.
+	// An list containing the cast of the movie.
 	Cast []struct {
 		Name         string `json:"name"`
 		Poster       string `json:"poster"`
@@ -124,7 +124,7 @@ type Movie struct {
 		APIPath      string `json:"apiPath"`
 	} `json:"cast"`
 
-	// An array containing the crew of the movie grouped by department.
+	// An list containing the crew of the movie grouped by department.
 	Crew []struct {
 		Department string `json:"department"`
 		Roles      []struct {
@@ -142,7 +142,7 @@ type Movie struct {
 		} `json:"roles"`
 	} `json:"crew"`
 
-	// An array containing the music labels for the movies tracks.
+	// An list containing the music labels for the movies tracks.
 	MusicLabels []struct {
 		Name         string `json:"name"`
 		Poster       string `json:"poster"`
@@ -153,7 +153,7 @@ type Movie struct {
 		MoviebuffURL string `json:"moviebuffUrl"`
 	} `json:"musicLabels"`
 
-	// An array containing the posters of the movie.
+	// An list containing the posters of the movie.
 	Posters []struct {
 		Featured bool   `json:"featured"`
 		URL      string `json:"url"`
@@ -162,7 +162,7 @@ type Movie struct {
 		Type     string `json:"type"`
 	} `json:"posters"`
 
-	// An array containing the videos of the movie.
+	// An list containing the videos of the movie.
 	Videos []struct {
 		Featured  bool   `json:"featured"`
 		URL       string `json:"url"`
@@ -173,7 +173,7 @@ type Movie struct {
 		Type      string `json:"type"`
 	} `json:"videos"`
 
-	// An array containing the stills of the movie.
+	// An list containing the stills of the movie.
 	Stills []struct {
 		Featured bool   `json:"featured"`
 		URL      string `json:"url"`
@@ -182,7 +182,7 @@ type Movie struct {
 		Type     string `json:"type"`
 	} `json:"stills"`
 
-	// An array containing the news articles related to the movie.
+	// An list containing the news articles related to the movie.
 	News []struct {
 		Poster  string `json:"poster"`
 		Summary string `json:"summary"`
@@ -191,8 +191,8 @@ type Movie struct {
 		Writer  string `json:"writer"`
 	} `json:"news"`
 
-	// An array containing the various connections of the movie with other movie.
-	// It is an array of objects with each object having a connectionType that
+	// An list containing the various connections of the movie with other movie.
+	// It is an list of objects with each object having a connectionType that
 	// specifies how the two movies are related to each other.
 	Connections []struct {
 		Name string `json:"name"`
