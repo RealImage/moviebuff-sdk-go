@@ -1,5 +1,7 @@
 package moviego
 
+import "time"
+
 // Person contain basic details of a celebrity.
 // The people in the database include actors, directors, support personnel, etc.
 // Moviebuff aims to document most, if not all, of the individuals involved in a film.
@@ -89,22 +91,23 @@ type Person struct {
 	Credits []struct {
 		Department string `json:"department"`
 		Roles      []struct {
-			Name         string `json:"name"`
-			URL          string `json:"url"`
-			ReleaseDates struct {
-			} `json:"releaseDates"`
-			Certifications struct {
-			} `json:"certifications"`
-			Language     string `json:"language"`
-			Type         string `json:"type"`
-			UUID         string `json:"uuid"`
-			Poster       string `json:"poster"`
-			MoviebuffURL string `json:"moviebuffUrl"`
-			APIPath      string `json:"apiPath"`
-			Role         string `json:"role"`
-			Department   string `json:"department"`
-			Primary      bool   `json:"primary"`
-			Character    string `json:"character"`
+			Name string `json:"name"`
+			URL  string `json:"url"`
+			// Release Dates mapped against their corresponding country code like "IN" : "2013-12-20".
+			ReleaseDates map[string]time.Time `json:"releaseDates"`
+
+			// Certifications mapped against their corresponding country code like "IN" : "A".
+			Certifications map[string]string `json:"certifications"`
+			Language       string            `json:"language"`
+			Type           string            `json:"type"`
+			UUID           string            `json:"uuid"`
+			Poster         string            `json:"poster"`
+			MoviebuffURL   string            `json:"moviebuffUrl"`
+			APIPath        string            `json:"apiPath"`
+			Role           string            `json:"role"`
+			Department     string            `json:"department"`
+			Primary        bool              `json:"primary"`
+			Character      string            `json:"character"`
 		} `json:"roles"`
 	} `json:"credits"`
 
