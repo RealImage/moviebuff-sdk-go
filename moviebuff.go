@@ -1,3 +1,10 @@
+// moviego is Go SDK for Moviebuff.
+// The Moviebuff is a service that offers information about movies, people, entities and theatres
+// All resources are identified by a UUID, which Moviebuff.com uniquely and randomly generates.
+// Since it may be difficult to get the Moviebuff UUID of any resource without prior knowledge,
+// the API also allows substitution of the UUID with the URL identifier of the resource.
+// For instance, if when attempting to get information for 12 Years a Slave (moviebuff.com/12-years-a-slave),
+// either its UUID or the identifier 12-years-a-slave may be used.
 package moviego
 
 import (
@@ -15,11 +22,16 @@ var (
 	ErrResourceDoesNotExist = errors.New("resource does not exist")
 )
 
+// Moviebuff allows to access to information in moviebuff using resource ids.
+// Before accessing any API it need to be initialized.
+// The Moviebuff is a service that offers information about movies, people, entities and theatres.
 type Moviebuff struct {
 	token string
 	l     logger
 }
 
+// Init initialize the Moviebuff.
+// token is mandatory. logger is optional however.
 func (m *Moviebuff) Init(token string, l logger) {
 	if l == nil {
 		l = log.New(new(devNull), "", 0)
@@ -29,8 +41,8 @@ func (m *Moviebuff) Init(token string, l logger) {
 	m.token = token
 }
 
-// GetMovie fetch a movie and its basic details
-// like release dates, certifications, cast, crew, trailers, posters, purchase links etc.
+// GetMovie fetch a movie and its basic details for given resource identifier.
+// Details include release dates, certifications, cast, crew, trailers, posters, purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
 func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 	r, err := prepareRequest(m.token, "/resources/movies/"+id)
