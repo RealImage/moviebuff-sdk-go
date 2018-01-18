@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 var (
@@ -46,7 +47,7 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		m.l.Println("Got invalid res code. Status: ", res.StatusCode)
+		m.l.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
@@ -84,7 +85,7 @@ func (m *Moviebuff) GetPerson(id string) (*Person, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		m.l.Println("Got invalid res code. Status: ", res.StatusCode)
+		m.l.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
@@ -121,7 +122,7 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		m.l.Println("Got invalid res code. Status: ", res.StatusCode)
+		m.l.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
@@ -139,4 +140,42 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 	}
 
 	return entity, nil
+}
+
+// GetResource fetch list of resource of type resourceType
+// resourceType value can be movies, people, entities and theatres in moviebuff.
+func (m *Moviebuff) GetResources(resourceType string, limit, page int) (*Resources, error) {
+	r, err := prepareRequest(m.token,
+		"/resources/"+resourceType+"/limit="+strconv.Itoa(limit)+"&page="+strconv.Itoa(page))
+	if err != nil {
+		m.l.Println("Unable to create Request:", err)
+		return nil, err
+	}
+
+	res, err := new(http.Client).Do(r)
+	if err != nil {
+		m.l.Println("Unable to make Request:", err)
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		m.l.Println("Got invalid res code: ", res.StatusCode)
+		return nil, ErrResponseNotReceived
+	}
+
+	content, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		m.l.Println("Unable to read res body: ", err)
+		return nil, err
+	}
+
+	resources := new(Resources)
+	err = json.Unmarshal(content, resources)
+	if err != nil {
+		m.l.Println("Unable to unmarshal res body: ", err)
+		return nil, err
+	}
+
+	return resources, nil
 }
