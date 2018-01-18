@@ -1,7 +1,5 @@
 package moviego
 
-import "time"
-
 // Entity contain basic details of an entity.
 // Entities are usually organizations like production companies, service providers, etc.
 type Entity struct {
@@ -43,7 +41,7 @@ type Entity struct {
 			Name string `json:"name"`
 			URL  string `json:"url"`
 			// Release Dates mapped against their corresponding country code like "IN" : "2013-12-20".
-			ReleaseDates map[string]time.Time `json:"releaseDates"`
+			ReleaseDates map[string]string `json:"releaseDates"`
 
 			// Certifications mapped against their corresponding country code like "IN" : "A".
 			Certifications map[string]string `json:"certifications"`

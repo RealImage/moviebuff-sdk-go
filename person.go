@@ -1,7 +1,5 @@
 package moviego
 
-import "time"
-
 // Person contain basic details of a celebrity.
 // The people in the database include actors, directors, support personnel, etc.
 // Moviebuff aims to document most, if not all, of the individuals involved in a film.
@@ -94,7 +92,7 @@ type Person struct {
 			Name string `json:"name"`
 			URL  string `json:"url"`
 			// Release Dates mapped against their corresponding country code like "IN" : "2013-12-20".
-			ReleaseDates map[string]time.Time `json:"releaseDates"`
+			ReleaseDates map[string]string `json:"releaseDates"`
 
 			// Certifications mapped against their corresponding country code like "IN" : "A".
 			Certifications map[string]string `json:"certifications"`

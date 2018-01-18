@@ -32,6 +32,6 @@ func prepareRequest(token, path string) (*http.Request, error) {
 		return nil, err
 	}
 
-	r.Header.Add("x-api-key", token)
+	r.Header.Add("X-Api-Key", token)
 	return r, nil
 }

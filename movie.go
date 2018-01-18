@@ -1,7 +1,5 @@
 package moviego
 
-import "time"
-
 // Movie contain basic movie details like release dates, certifications, cast, crew, trailers, posters,
 // purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
@@ -25,7 +23,7 @@ type Movie struct {
 	UUID string `json:"uuid"`
 
 	// Release Dates mapped against their corresponding country code like "IN" : "2013-12-20".
-	ReleaseDates map[string]time.Time `json:"releaseDates"`
+	ReleaseDates map[string]string `json:"releaseDates"`
 
 	// Certifications mapped against their corresponding country code like "IN" : "A".
 	Certifications map[string]string `json:"certifications"`
@@ -90,8 +88,8 @@ type Movie struct {
 	// An list of objects each having a name and data. Here name contains the type of the tech data and data which may
 	// be an list of strings or a string.
 	TechDetails []struct {
-		Name string   `json:"name"`
-		Data []string `json:"data"`
+		Name string      `json:"name"`
+		Data interface{} `json:"data"`
 	} `json:"techDetails"`
 
 	// An list containing the trivia of the movie.
@@ -198,7 +196,7 @@ type Movie struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
 		// Release Dates mapped against their corresponding country code like "IN" : "2013-12-20".
-		ReleaseDates map[string]time.Time `json:"releaseDates"`
+		ReleaseDates map[string]string `json:"releaseDates"`
 
 		// Certifications mapped against their corresponding country code like "IN" : "A".
 		Certifications map[string]string `json:"certifications"`

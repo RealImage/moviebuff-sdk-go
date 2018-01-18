@@ -60,7 +60,7 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		m.l.Println("Got invalid res code: ", res.StatusCode)
+		m.l.Println("Got invalid res code: ", r, res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
