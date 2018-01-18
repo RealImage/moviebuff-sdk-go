@@ -1,28 +1,63 @@
 package moviego
 
+import "time"
+
+// Movie contain basic movie details like release dates, certifications, cast, crew, trailers, posters,
+// purchase links etc.
+// Here movies may include feature films, documentaries, short films etc.
 type Movie struct {
-	Name          string   `json:"name"`
-	Poster        string   `json:"poster"`
+	// Name of the movie.
+	Name string `json:"name"`
+
+	// Poster url of the movie.
+	Poster string `json:"poster"`
+
+	// Alternate URLS of the movie.
 	AlternateUrls []string `json:"alternateUrls"`
-	URL           string   `json:"url"`
-	Type          string   `json:"type"`
-	UUID          string   `json:"uuid"`
-	ReleaseDates  struct {
-		IN string `json:"IN"`
-	} `json:"releaseDates"`
-	Certifications struct {
-		IN string `json:"IN"`
-	} `json:"certifications"`
-	Language      string   `json:"language"`
-	FilmType      string   `json:"filmType"`
-	Featured      bool     `json:"featured"`
-	Synopsis      string   `json:"synopsis"`
-	ShortSynopsis string   `json:"shortSynopsis"`
-	Storyline     string   `json:"storyline"`
-	Genres        []string `json:"genres"`
-	LocalName     string   `json:"localName"`
-	RunningTime   int      `json:"runningTime"`
-	Trailer       struct {
+
+	// Primary URL of the movie.
+	URL string `json:"url"`
+
+	// Type of the resource.
+	Type string `json:"type"`
+
+	// UUID of the movie.
+	UUID string `json:"uuid"`
+
+	// Release Dates mapped against their corresponding country code like "IN" : "2013-12-20".
+	ReleaseDates map[string]time.Time `json:"releaseDates"`
+
+	// Certifications mapped against their corresponding country code like "IN" : "A".
+	Certifications map[string]string `json:"certifications"`
+
+	// The primary language of the movie.
+	Language string `json:"language"`
+
+	// The type of the movie like Feature Film, Short Film etc.
+	FilmType string `json:"filmType"`
+
+	Featured bool `json:"featured"`
+
+	// The synopsis of the movie.
+	Synopsis string `json:"synopsis"`
+
+	// The short synopsis of the movie.
+	ShortSynopsis string `json:"shortSynopsis"`
+
+	// The storyline of the movie.
+	Storyline string `json:"storyline"`
+
+	// An list of genres of the movie.
+	Genres []string `json:"genres"`
+
+	// The name of the movie in the local language.
+	LocalName string `json:"localName"`
+
+	// The running time of the movie in seconds.
+	RunningTime int `json:"runningTime"`
+
+	// Details of the trailer of the movie.
+	Trailer struct {
 		Featured  bool   `json:"featured"`
 		URL       string `json:"url"`
 		EmbedURL  string `json:"embedUrl"`
@@ -31,31 +66,50 @@ type Movie struct {
 		Thumbnail string `json:"thumbnail"`
 		Type      string `json:"type"`
 	} `json:"trailer"`
+
+	// An list containing the alternate titles of the movie.
 	AlternateTitles []string `json:"alternateTitles"`
-	Taglines        []string `json:"taglines"`
-	Links           []struct {
+
+	// An list containing the taglines of the movie.
+	TagLines []string `json:"taglines"`
+
+	// An list containing links to movie's twitter, facebook pages etc.
+	Links []struct {
 		DisplayClass string `json:"displayClass"`
 		Name         string `json:"name"`
 		URL          string `json:"url"`
 	} `json:"links"`
+
+	// An array containing the links to various purchase channels of movie, its songs etc.
 	PurchaseLinks []struct {
 		DisplayClass string `json:"displayClass"`
 		Name         string `json:"name"`
 		URL          string `json:"url"`
 	} `json:"purchaseLinks"`
+
+	// An array of objects each having a name and data. Here name contains the type of the tech data and data which may
+	// be an array of strings or a string.
 	TechDetails []struct {
 		Name string   `json:"name"`
 		Data []string `json:"data"`
 	} `json:"techDetails"`
-	Trivia      []string `json:"trivia"`
+
+	// An array containing the trivia of the movie.
+	Trivia []string `json:"trivia"`
+
+	// An object containing the value and the count of the ratings for the movie.
 	MovieRating struct {
 		Value string `json:"value"`
 		Count int    `json:"count"`
 	} `json:"movieRating"`
+
+	// An object containing the value and the count of the ratings for the movie's tracks.
 	MusicRating struct {
 		Value string `json:"value"`
 		Count int    `json:"count"`
 	} `json:"musicRating"`
+
+	// An array containing the cast of the movie.
 	Cast []struct {
 		Name         string `json:"name"`
 		Poster       string `json:"poster"`
@@ -69,31 +123,37 @@ type Movie struct {
 		MoviebuffURL string `json:"moviebuffUrl"`
 		APIPath      string `json:"apiPath"`
 	} `json:"cast"`
+
+	// An array containing the crew of the movie grouped by department.
 	Crew []struct {
 		Department string `json:"department"`
 		Roles      []struct {
-			Name         string      `json:"name"`
-			Poster       interface{} `json:"poster"`
-			Type         string      `json:"type"`
-			URL          string      `json:"url"`
-			UUID         string      `json:"uuid"`
-			Role         string      `json:"role"`
-			Department   string      `json:"department"`
-			Primary      bool        `json:"primary"`
-			Character    interface{} `json:"character"`
-			MoviebuffURL string      `json:"moviebuffUrl"`
-			APIPath      string      `json:"apiPath"`
+			Name         string `json:"name"`
+			Poster       string `json:"poster"`
+			Type         string `json:"type"`
+			URL          string `json:"url"`
+			UUID         string `json:"uuid"`
+			Role         string `json:"role"`
+			Department   string `json:"department"`
+			Primary      bool   `json:"primary"`
+			Character    string `json:"character"`
+			MoviebuffURL string `json:"moviebuffUrl"`
+			APIPath      string `json:"apiPath"`
 		} `json:"roles"`
 	} `json:"crew"`
+
+	// An array containing the music labels for the movies tracks.
 	MusicLabels []struct {
-		Name         string      `json:"name"`
-		Poster       interface{} `json:"poster"`
-		URL          string      `json:"url"`
-		UUID         string      `json:"uuid"`
-		Type         string      `json:"type"`
-		APIPath      string      `json:"apiPath"`
-		MoviebuffURL string      `json:"moviebuffUrl"`
+		Name         string `json:"name"`
+		Poster       string `json:"poster"`
+		URL          string `json:"url"`
+		UUID         string `json:"uuid"`
+		Type         string `json:"type"`
+		APIPath      string `json:"apiPath"`
+		MoviebuffURL string `json:"moviebuffUrl"`
 	} `json:"musicLabels"`
+
+	// An array containing the posters of the movie.
 	Posters []struct {
 		Featured bool   `json:"featured"`
 		URL      string `json:"url"`
@@ -101,6 +161,8 @@ type Movie struct {
 		Caption  string `json:"caption"`
 		Type     string `json:"type"`
 	} `json:"posters"`
+
+	// An array containing the videos of the movie.
 	Videos []struct {
 		Featured  bool   `json:"featured"`
 		URL       string `json:"url"`
@@ -110,6 +172,8 @@ type Movie struct {
 		Thumbnail string `json:"thumbnail"`
 		Type      string `json:"type"`
 	} `json:"videos"`
+
+	// An array containing the stills of the movie.
 	Stills []struct {
 		Featured bool   `json:"featured"`
 		URL      string `json:"url"`
@@ -117,6 +181,8 @@ type Movie struct {
 		Caption  string `json:"caption"`
 		Type     string `json:"type"`
 	} `json:"stills"`
+
+	// An array containing the news articles related to the movie.
 	News []struct {
 		Poster  string `json:"poster"`
 		Summary string `json:"summary"`
@@ -124,23 +190,29 @@ type Movie struct {
 		URL     string `json:"url"`
 		Writer  string `json:"writer"`
 	} `json:"news"`
+
+	// An array containing the various connections of the movie with other movie.
+	// It is an array of objects with each object having a connectionType that
+	// specifies how the two movies are related to each other.
 	Connections []struct {
-		Name         string `json:"name"`
-		URL          string `json:"url"`
-		ReleaseDates struct {
-			IN string `json:"IN"`
-		} `json:"releaseDates"`
-		Certifications struct {
-			IN string `json:"IN"`
-		} `json:"certifications"`
-		Language       string      `json:"language"`
-		Type           string      `json:"type"`
-		UUID           string      `json:"uuid"`
-		Poster         interface{} `json:"poster"`
-		MoviebuffURL   string      `json:"moviebuffUrl"`
-		APIPath        string      `json:"apiPath"`
-		ConnectionType string      `json:"connectionType"`
+		Name string `json:"name"`
+		URL  string `json:"url"`
+		// Release Dates mapped against their corresponding country code like "IN" : "2013-12-20".
+		ReleaseDates map[string]time.Time `json:"releaseDates"`
+
+		// Certifications mapped against their corresponding country code like "IN" : "A".
+		Certifications map[string]string `json:"certifications"`
+
+		Language       string `json:"language"`
+		Type           string `json:"type"`
+		UUID           string `json:"uuid"`
+		Poster         string `json:"poster"`
+		MoviebuffURL   string `json:"moviebuffUrl"`
+		APIPath        string `json:"apiPath"`
+		ConnectionType string `json:"connectionType"`
 	} `json:"connections"`
+
+	// An object where each release status is mapped against its corresponding country code.
 	ReleaseStatuses struct {
 		AE string `json:"AE"`
 	} `json:"releaseStatuses"`
