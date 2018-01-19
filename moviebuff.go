@@ -1,5 +1,7 @@
 // moviego is Go SDK for Moviebuff.
+
 // The Moviebuff is a service that offers information about movies, people, entities and theatres
+
 // All resources are identified by a UUID, which Moviebuff.com uniquely and randomly generates.
 // Since it may be difficult to get the Moviebuff UUID of any resource without prior knowledge,
 // the API also allows substitution of the UUID with the URL identifier of the resource.
@@ -16,13 +18,25 @@ import (
 	"strconv"
 )
 
+// Type of resources supported by moviebuff
+type ResourceType string
+
+const (
+	RESOURCE_TYPE_PERSON   ResourceType = "people"
+	RESOURCE_TYPE_MOVIES   ResourceType = "movies"
+	RESOURCE_TYPE_ENTITIES ResourceType = "entities"
+	RESOURCE_TYPE_THEATRES ResourceType = "theatres"
+)
+
 var (
 	ErrInvalidToken         = errors.New("access denied")
 	ErrResponseNotReceived  = errors.New("could not receive valid response")
 	ErrResourceDoesNotExist = errors.New("resource does not exist")
+	ErrInvalidResourceType  = errors.New("invalid resource type")
 )
 
 // Moviebuff allows to access to information in moviebuff using resource ids.
+
 // Before accessing any API it need to be initialized.
 // The Moviebuff is a service that offers information about movies, people, entities and theatres.
 type Moviebuff struct {
@@ -42,6 +56,7 @@ func (m *Moviebuff) Init(token string, l logger) {
 }
 
 // GetMovie fetch a movie and its basic details for given resource uuid.
+
 // Instead of the UUID, this can also be the URL of the movie as seen on moviebuff.com, like 12-years-a-slave
 // Details include release dates, certifications, cast, crew, trailers, posters, purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
@@ -60,6 +75,12 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
+		if res.StatusCode == http.StatusForbidden {
+			return nil, ErrInvalidToken
+		}
+		if res.StatusCode == http.StatusForbidden {
+			return nil, ErrInvalidToken
+		}
 		m.l.Println("Got invalid res code: ", r, res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
@@ -81,6 +102,7 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 }
 
 // GetPerson fetch a person and his/her basic details with UUID.
+
 // Instead of the UUID, this can also be the URL of the person as seen on moviebuff.com, like amitabh-bachchan
 // The people in the database include actors, directors, support personnel, etc.
 // Moviebuff aims to document most, if not all, of the individuals involved in a film.
@@ -99,6 +121,9 @@ func (m *Moviebuff) GetPerson(id string) (*Person, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
+		if res.StatusCode == http.StatusForbidden {
+			return nil, ErrInvalidToken
+		}
 		m.l.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
@@ -120,6 +145,7 @@ func (m *Moviebuff) GetPerson(id string) (*Person, error) {
 }
 
 // GetEntity fetch an entity and its basic details for UUID.
+
 // Instead of the UUID, this can also be the URL of the company as seen on moviebuff.com: yash-raj-films .
 // Entities are usually organizations like production companies, service providers, etc.
 func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
@@ -137,6 +163,9 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
+		if res.StatusCode == http.StatusForbidden {
+			return nil, ErrInvalidToken
+		}
 		m.l.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
@@ -158,13 +187,14 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 }
 
 // GetResource fetch list of resource of type resourceType.
-// resourceType may be one of the following movies, people, entities, theatres
+
+// resourceType may be one of the following value defined by ResourceType
 // limit represents the number of records to fetch in a single request.
 // The actual count can be lower than the provided limit. Max value is 50.
 // page represents the page number in the pagination. It starts from 1.
-func (m *Moviebuff) GetResources(resourceType string, limit, page int) (*Resources, error) {
+func (m *Moviebuff) GetResources(resourceType ResourceType, limit, page int) (*Resources, error) {
 	r, err := prepareRequest(m.token,
-		"/resources/"+resourceType+"?limit="+strconv.Itoa(limit)+"&page="+strconv.Itoa(page))
+		"/resources/"+string(resourceType)+"?limit="+strconv.Itoa(limit)+"&page="+strconv.Itoa(page))
 	if err != nil {
 		m.l.Println("Unable to create Request:", err)
 		return nil, err
@@ -178,6 +208,9 @@ func (m *Moviebuff) GetResources(resourceType string, limit, page int) (*Resourc
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
+		if res.StatusCode == http.StatusForbidden {
+			return nil, ErrInvalidToken
+		}
 		m.l.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
