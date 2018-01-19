@@ -1,5 +1,9 @@
 package moviego
 
+import (
+	"time"
+)
+
 // Movie contain basic movie details like release dates, certifications, cast, crew, trailers, posters,
 // purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
@@ -125,7 +129,7 @@ type Movie struct {
 	// An list containing the crew of the movie grouped by department.
 	Crew []struct {
 		Department string `json:"department"`
-		Roles []struct {
+		Roles      []struct {
 			Name         string `json:"name"`
 			Poster       string `json:"poster"`
 			Type         string `json:"type"`
@@ -219,13 +223,13 @@ type Movie struct {
 	APIPath      string `json:"apiPath"`
 }
 
-// GetEarliestReleaseYear return year at which movie was first released anywhere in the world
+// GetEarliestReleaseYear return the year at which movie was first released anywhere in the world.
 // Returns 0 if release date is not available
-func (m *Movie) GetEarliestReleaseYear() int {
-	r = 0
+func (m *Movie) GetEarliestReleaseYear() (releaseYear int) {
 	for _, v := range m.ReleaseDates {
-		if time.Parse(time.RFC3339, v) {
-
+		if t, err := time.Parse("2006-01-02", v); err == nil && (t.Year() < releaseYear || releaseYear == 0) {
+			releaseYear = t.Year()
 		}
 	}
+	return
 }

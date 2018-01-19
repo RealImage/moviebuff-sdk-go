@@ -14,6 +14,14 @@ func TestMoviebuff_GetMovie(t *testing.T) {
 	ShouldBeEqual(t, nil, err)
 }
 
+func TestMovie_GetEarliestReleaseYear(t *testing.T) {
+	m := new(Moviebuff)
+	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
+	mv, err := m.GetMovie("dd083a9d-823b-4ffc-b057-d8885840fcf7")
+	ShouldBeEqual(t, 2014, mv.GetEarliestReleaseYear())
+	ShouldBeEqual(t, nil, err)
+}
+
 func TestMoviebuff_GetPerson(t *testing.T) {
 	m := new(Moviebuff)
 	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
