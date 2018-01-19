@@ -125,7 +125,7 @@ type Movie struct {
 	// An list containing the crew of the movie grouped by department.
 	Crew []struct {
 		Department string `json:"department"`
-		Roles      []struct {
+		Roles []struct {
 			Name         string `json:"name"`
 			Poster       string `json:"poster"`
 			Type         string `json:"type"`
@@ -214,6 +214,18 @@ type Movie struct {
 	ReleaseStatuses struct {
 		AE string `json:"AE"`
 	} `json:"releaseStatuses"`
+
 	MoviebuffURL string `json:"moviebuffUrl"`
 	APIPath      string `json:"apiPath"`
+}
+
+// GetEarliestReleaseYear return year at which movie was first released anywhere in the world
+// Returns 0 if release date is not available
+func (m *Movie) GetEarliestReleaseYear() int {
+	r = 0
+	for _, v := range m.ReleaseDates {
+		if time.Parse(time.RFC3339, v) {
+
+		}
+	}
 }

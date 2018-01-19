@@ -44,13 +44,15 @@ type Moviebuff struct {
 
 // Init initialize the Moviebuff.
 // token is mandatory. logger is optional however.
-func (m *Moviebuff) Init(token string, l logger) {
+// Return the same Moviebuff object back
+func (m *Moviebuff) Init(token string, l logger) *Moviebuff {
 	if l == nil {
 		l = log.New(new(devNull), "", 0)
 	}
 
 	m.l = l
 	m.token = token
+	return m
 }
 
 // GetMovie fetch a movie and its basic details for given resource uuid.
