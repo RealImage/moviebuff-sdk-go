@@ -1,7 +1,7 @@
 // moviego is Go SDK for Moviebuff.
-
+//
 // The Moviebuff is a service that offers information about movies, people and entities.
-
+//
 // All resources are identified by a UUID, which Moviebuff.com uniquely and randomly generates.
 // Since it may be difficult to get the Moviebuff UUID of any resource without prior knowledge,
 // the API also allows substitution of the UUID with the URL identifier of the resource.
@@ -185,14 +185,24 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 }
 
 // GetResource fetch list of resource of type resourceType.
-
+//
 // resourceType may be one of the following value defined by ResourceType
+// page and limit is optional. Provide zero values to ignore them.
+//
 // limit represents the number of records to fetch in a single request.
 // The actual count can be lower than the provided limit. Max value is 50.
 // page represents the page number in the pagination. It starts from 1.
 func (m *Moviebuff) GetResources(resourceType ResourceType, limit, page int) (*Resources, error) {
-	r, err := prepareRequest(m.token,
-		"/resources/"+string(resourceType)+"?limit="+strconv.Itoa(limit)+"&page="+strconv.Itoa(page))
+	u := "/resources/" + string(resourceType) + "?"
+	if limit != 0 {
+		u += "limit=" + strconv.Itoa(limit)
+	}
+
+	if page != 0 {
+		u += "page=" + strconv.Itoa(page)
+	}
+
+	r, err := prepareRequest(m.token, u)
 	if err != nil {
 		m.l.Println("Unable to create Request:", err)
 		return nil, err
