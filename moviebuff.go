@@ -1,6 +1,6 @@
 // moviego is Go SDK for Moviebuff.
 
-// The Moviebuff is a service that offers information about movies, people, entities and theatres
+// The Moviebuff is a service that offers information about movies, people and entities.
 
 // All resources are identified by a UUID, which Moviebuff.com uniquely and randomly generates.
 // Since it may be difficult to get the Moviebuff UUID of any resource without prior knowledge,
@@ -22,23 +22,21 @@ import (
 type ResourceType string
 
 const (
-	RESOURCE_TYPE_PERSON   ResourceType = "people"
+	RESOURCE_TYPE_PEOPLE   ResourceType = "people"
 	RESOURCE_TYPE_MOVIES   ResourceType = "movies"
 	RESOURCE_TYPE_ENTITIES ResourceType = "entities"
-	RESOURCE_TYPE_THEATRES ResourceType = "theatres"
 )
 
 var (
 	ErrInvalidToken         = errors.New("access denied")
 	ErrResponseNotReceived  = errors.New("could not receive valid response")
 	ErrResourceDoesNotExist = errors.New("resource does not exist")
-	ErrInvalidResourceType  = errors.New("invalid resource type")
 )
 
 // Moviebuff allows to access to information in moviebuff using resource ids.
 
 // Before accessing any API it need to be initialized.
-// The Moviebuff is a service that offers information about movies, people, entities and theatres.
+// The Moviebuff is a service that offers information about movies, people, entities.
 type Moviebuff struct {
 	token string
 	l     logger
