@@ -98,7 +98,8 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 		return nil, err
 	}
 
-	if movie.Type != string(RESOURCE_TYPE_MOVIES) {
+	if movie.Type != "movie" {
+		m.l.Println("Resource is of type", movie.Type)
 		return nil, ErrResourceDoesNotExist
 	}
 
