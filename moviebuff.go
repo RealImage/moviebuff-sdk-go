@@ -98,6 +98,10 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 		return nil, err
 	}
 
+	if movie.Type != string(RESOURCE_TYPE_MOVIES) {
+		return nil, ErrResourceDoesNotExist
+	}
+
 	return movie, nil
 }
 
