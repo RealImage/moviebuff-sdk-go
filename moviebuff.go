@@ -146,6 +146,11 @@ func (m *Moviebuff) GetPerson(id string) (*Person, error) {
 		return nil, err
 	}
 
+	if person.Type != "person" {
+		m.l.Println("Resource is of type", person.Type)
+		return nil, ErrResourceDoesNotExist
+	}
+
 	return person, nil
 }
 
@@ -186,6 +191,11 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 	if err != nil {
 		m.l.Println("Unable to unmarshal res body: ", err)
 		return nil, err
+	}
+
+	if entity.Type != "entity" {
+		m.l.Println("Resource is of type", entity.Type)
+		return nil, ErrResourceDoesNotExist
 	}
 
 	return entity, nil

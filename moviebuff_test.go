@@ -36,11 +36,25 @@ func TestMoviebuff_GetPerson(t *testing.T) {
 	ShouldBeEqual(t, nil, err)
 }
 
+func TestMoviebuff_GetPersonInvalidResource(t *testing.T) {
+	m := new(Moviebuff)
+	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
+	_, err := m.GetPerson("dd083a9d-823b-4ffc-b057-d8885840fcf7")
+	ShouldBeEqual(t, ErrResourceDoesNotExist, err)
+}
+
 func TestMoviebuff_GetEntity(t *testing.T) {
 	m := new(Moviebuff)
 	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
 	_, err := m.GetEntity("1e14fd01-3a4f-4b0b-a164-fe50c0fab13d")
 	ShouldBeEqual(t, nil, err)
+}
+
+func TestMoviebuff_GetEntityInvalidResource(t *testing.T) {
+	m := new(Moviebuff)
+	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
+	_, err := m.GetEntity("9494a132-4447-42e9-ae49-a66ac071a36a")
+	ShouldBeEqual(t, ErrResourceDoesNotExist, err)
 }
 
 func TestMoviebuff_GetResources(t *testing.T) {
