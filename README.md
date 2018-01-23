@@ -1,6 +1,6 @@
 # moviego
 
-Go SDK for [Moviebuff][www.moviebuff.com]
+Go SDK for [Moviebuff](www.moviebuff.com)
 
 The Moviebuff is a service that offers information about
  movies, people and entities.
@@ -17,7 +17,7 @@ Since it may be difficult to get the Moviebuff UUID of
 
 ## Information Available via Moviebuff
 
-For Detailed Code Documentation click [here][https://godoc.org/github.com/RealImage/moviego] .
+For Detailed Code Documentation click [here](https://godoc.org/github.com/RealImage/moviego) .
 
 * Get Movie Information
 
