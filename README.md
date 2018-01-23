@@ -15,6 +15,15 @@ Since it may be difficult to get the Moviebuff UUID of
   (moviebuff.com/12-years-a-slave), either its UUID
   or the identifier 12-years-a-slave may be used.
 
+Sample usage:
+
+    movie, err := new(moviego.Moviebuff).Init(os.Getenv("API_TOKEN"), nil).GetMovie("padmaavat")
+    if err!=nil{
+        return err
+    }
+
+    log.Println("Padmaavat was release in year ", movie.GetEarliestReleaseYear())
+
 ## Information Available via Moviebuff
 
 For Detailed Code Documentation click [here](https://godoc.org/github.com/RealImage/moviego) .
