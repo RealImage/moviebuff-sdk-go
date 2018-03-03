@@ -78,8 +78,8 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 		if res.StatusCode == http.StatusForbidden {
 			return nil, ErrInvalidToken
 		}
-		if res.StatusCode == http.StatusForbidden {
-			return nil, ErrInvalidToken
+		if res.StatusCode == http.StatusNotFound {
+			return nil, ErrResourceDoesNotExist
 		}
 		m.l.Println("Got invalid res code: ", r, res.StatusCode)
 		return nil, ErrResponseNotReceived
@@ -129,6 +129,9 @@ func (m *Moviebuff) GetPerson(id string) (*Person, error) {
 		if res.StatusCode == http.StatusForbidden {
 			return nil, ErrInvalidToken
 		}
+		if res.StatusCode == http.StatusNotFound {
+			return nil, ErrResourceDoesNotExist
+		}
 		m.l.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
@@ -175,6 +178,9 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 	if res.StatusCode != http.StatusOK {
 		if res.StatusCode == http.StatusForbidden {
 			return nil, ErrInvalidToken
+		}
+		if res.StatusCode == http.StatusNotFound {
+			return nil, ErrResourceDoesNotExist
 		}
 		m.l.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
@@ -235,6 +241,9 @@ func (m *Moviebuff) GetResources(resourceType ResourceType, limit, page int) (*R
 	if res.StatusCode != http.StatusOK {
 		if res.StatusCode == http.StatusForbidden {
 			return nil, ErrInvalidToken
+		}
+		if res.StatusCode == http.StatusNotFound {
+			return nil, ErrResourceDoesNotExist
 		}
 		m.l.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
