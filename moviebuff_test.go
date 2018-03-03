@@ -14,6 +14,13 @@ func TestMoviebuff_GetMovie(t *testing.T) {
 	ShouldBeEqual(t, nil, err)
 }
 
+func TestMoviebuff_GetMovie404(t *testing.T) {
+	m := new(Moviebuff)
+	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
+	_, err := m.GetMovie("9494a132-4447-42e9-ae49-a66ac071a36a")
+	ShouldBeEqual(t, ErrResourceDoesNotExist, err)
+}
+
 func TestMoviebuff_GetMovieInvalidResource(t *testing.T) {
 	m := new(Moviebuff)
 	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
