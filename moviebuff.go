@@ -1,4 +1,4 @@
-// moviego is Go SDK for Moviebuff.
+// moviebuff-sdk-go is Go SDK for Moviebuff.
 //
 // The Moviebuff is a service that offers information about movies, people and entities.
 //
@@ -7,7 +7,7 @@
 // the API also allows substitution of the UUID with the URL identifier of the resource.
 // For instance, if when attempting to get information for 12 Years a Slave (moviebuff.com/12-years-a-slave),
 // either its UUID or the identifier 12-years-a-slave may be used.
-package moviego
+package moviebuff
 
 import (
 	"encoding/json"

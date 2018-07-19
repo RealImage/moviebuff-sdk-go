@@ -1,4 +1,4 @@
-package moviego
+package moviebuff
 
 // Resources contain a paginated list of various resources like movies, people, entities, theatres in moviebuff.
 // prev - The previous page in the paginated api. If null there are no more pages before this page.

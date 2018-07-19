@@ -1,4 +1,4 @@
-package moviego
+package moviebuff
 
 // Person contain basic details of a celebrity.
 // The people in the database include actors, directors, support personnel, etc.

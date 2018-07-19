@@ -1,4 +1,4 @@
-package moviego
+package moviebuff
 
 // Entity contain basic details of an entity.
 // Entities are usually organizations like production companies, service providers, etc.
