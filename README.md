@@ -1,4 +1,4 @@
-# moviego
+# moviebuff-sdk-go
 
 Go SDK for [Moviebuff](www.moviebuff.com)
 
@@ -17,7 +17,7 @@ Since it may be difficult to get the Moviebuff UUID of
 
 Sample usage:
 
-    movie, err := new(moviego.Moviebuff).Init(os.Getenv("API_TOKEN"), nil).GetMovie("padmaavat")
+    movie, err := new(moviebuff.Moviebuff).Init(os.Getenv("API_TOKEN"), nil).GetMovie("padmaavat")
     if err!=nil{
         return err
     }
@@ -26,7 +26,7 @@ Sample usage:
 
 ## Information Available via Moviebuff
 
-For Detailed Code Documentation click [here](https://godoc.org/github.com/RealImage/moviego) .
+For Detailed Code Documentation click [here](https://godoc.org/github.com/RealImage/moviebuff-sdk-go) .
 
 * Get Movie Information
 

@@ -1,4 +1,4 @@
-package moviego
+package moviebuff
 
 import (
 	"net/http"
