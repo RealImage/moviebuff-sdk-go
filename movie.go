@@ -35,8 +35,11 @@ type Movie struct {
 	// The primary language of the movie.
 	Language string `json:"language"`
 
-    // The language details of the movie.
-	LanguageData map[string]string `json:"languageData"`
+	// The language details of the movie.
+	LanguageData struct {
+		Name string `json:"name"`
+		UUID string `json:"uuid"`
+	} `json:"languageData"`
 
 	// The type of the movie like Feature Film, Short Film etc.
 	FilmType string `json:"filmType"`
