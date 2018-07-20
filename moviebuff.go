@@ -35,24 +35,47 @@ var (
 
 // Moviebuff allows to access to information in moviebuff using resource ids.
 
+type Logger interface {
+	Println(v ...interface{})
+}
+
+type Moviebuff interface {
+	GetMovie(id string) (*Movie, error)
+	GetPerson(id string) (*Person, error)
+	GetEntity(id string) (*Entity, error)
+	GetResources(resourceType ResourceType, limit, page int) (*Resources, error)
+}
+
+type Config struct {
+	HostURL     string
+	StaticToken string
+	Logger      Logger
+}
+
 // Before accessing any API it need to be initialized.
 // The Moviebuff is a service that offers information about movies, people, entities.
-type Moviebuff struct {
-	token string
-	l     logger
+type moviebuff struct {
+	Config
+}
+
+//New returns a QubeAccount interface with a nil logger.
+func New(config Config) Moviebuff {
+	mb := &moviebuff{Config: config}
+	mb.init(config.Logger, config.HostURL, config.StaticToken)
+	return mb
 }
 
 // Init initialize the Moviebuff.
 // token is mandatory. logger is optional however.
 // Return the same Moviebuff object back
-func (m *Moviebuff) Init(token string, l logger) *Moviebuff {
+func (m *moviebuff) init(l Logger, hostURL, staticToken string) {
 	if l == nil {
 		l = log.New(new(devNull), "", 0)
 	}
 
-	m.l = l
-	m.token = token
-	return m
+	m.Logger = l
+	m.HostURL = hostURL
+	m.StaticToken = staticToken
 }
 
 // GetMovie fetch a movie and its basic details for given resource uuid.
@@ -60,46 +83,47 @@ func (m *Moviebuff) Init(token string, l logger) *Moviebuff {
 // Instead of the UUID, this can also be the URL of the movie as seen on moviebuff.com, like 12-years-a-slave
 // Details include release dates, certifications, cast, crew, trailers, posters, purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
-func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
-	r, err := prepareRequest(m.token, "/resources/movies/"+id)
+func (m *moviebuff) GetMovie(id string) (*Movie, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/movies/"+id)
 	if err != nil {
-		m.l.Println("Unable to create Request:", err)
+		m.Logger.Println("Unable to create Request:", err)
 		return nil, err
 	}
 
 	res, err := new(http.Client).Do(r)
 	if err != nil {
-		m.l.Println("Unable to make Request:", err)
+		m.Logger.Println("Unable to make Request:", err)
 		return nil, err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
+		log.Println("res.StatusCode...", res.StatusCode)
 		if res.StatusCode == http.StatusForbidden {
 			return nil, ErrInvalidToken
 		}
 		if res.StatusCode == http.StatusNotFound {
 			return nil, ErrResourceDoesNotExist
 		}
-		m.l.Println("Got invalid res code: ", r, res.StatusCode)
+		m.Logger.Println("Got invalid res code: ", r, res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
 	content, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		m.l.Println("Unable to read res body: ", err)
+		m.Logger.Println("Unable to read res body: ", err)
 		return nil, err
 	}
 
 	movie := new(Movie)
 	err = json.Unmarshal(content, movie)
 	if err != nil {
-		m.l.Println("Unable to unmarshal res body: ", err)
+		m.Logger.Println("Unable to unmarshal res body: ", err)
 		return nil, err
 	}
 
 	if movie.Type != "movie" {
-		m.l.Println("Resource is of type", movie.Type)
+		m.Logger.Println("Resource is of type", movie.Type)
 		return nil, ErrResourceDoesNotExist
 	}
 
@@ -111,16 +135,16 @@ func (m *Moviebuff) GetMovie(id string) (*Movie, error) {
 // Instead of the UUID, this can also be the URL of the person as seen on moviebuff.com, like amitabh-bachchan
 // The people in the database include actors, directors, support personnel, etc.
 // Moviebuff aims to document most, if not all, of the individuals involved in a film.
-func (m *Moviebuff) GetPerson(id string) (*Person, error) {
-	r, err := prepareRequest(m.token, "/resources/people/"+id)
+func (m *moviebuff) GetPerson(id string) (*Person, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/people/"+id)
 	if err != nil {
-		m.l.Println("Unable to create Request:", err)
+		m.Logger.Println("Unable to create Request:", err)
 		return nil, err
 	}
 
 	res, err := new(http.Client).Do(r)
 	if err != nil {
-		m.l.Println("Unable to make Request:", err)
+		m.Logger.Println("Unable to make Request:", err)
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -132,25 +156,25 @@ func (m *Moviebuff) GetPerson(id string) (*Person, error) {
 		if res.StatusCode == http.StatusNotFound {
 			return nil, ErrResourceDoesNotExist
 		}
-		m.l.Println("Got invalid res code: ", res.StatusCode)
+		m.Logger.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
 	content, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		m.l.Println("Unable to read res body: ", err)
+		m.Logger.Println("Unable to read res body: ", err)
 		return nil, err
 	}
 
 	person := new(Person)
 	err = json.Unmarshal(content, person)
 	if err != nil {
-		m.l.Println("Unable to unmarshal res body: ", err)
+		m.Logger.Println("Unable to unmarshal res body: ", err)
 		return nil, err
 	}
 
 	if person.Type != "person" {
-		m.l.Println("Resource is of type", person.Type)
+		m.Logger.Println("Resource is of type", person.Type)
 		return nil, ErrResourceDoesNotExist
 	}
 
@@ -161,16 +185,16 @@ func (m *Moviebuff) GetPerson(id string) (*Person, error) {
 
 // Instead of the UUID, this can also be the URL of the company as seen on moviebuff.com: yash-raj-films .
 // Entities are usually organizations like production companies, service providers, etc.
-func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
-	r, err := prepareRequest(m.token, "/resources/entities/"+id)
+func (m *moviebuff) GetEntity(id string) (*Entity, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/entities/"+id)
 	if err != nil {
-		m.l.Println("Unable to create Request:", err)
+		m.Logger.Println("Unable to create Request:", err)
 		return nil, err
 	}
 
 	res, err := new(http.Client).Do(r)
 	if err != nil {
-		m.l.Println("Unable to make Request:", err)
+		m.Logger.Println("Unable to make Request:", err)
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -182,25 +206,25 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 		if res.StatusCode == http.StatusNotFound {
 			return nil, ErrResourceDoesNotExist
 		}
-		m.l.Println("Got invalid res code: ", res.StatusCode)
+		m.Logger.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
 	content, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		m.l.Println("Unable to read res body: ", err)
+		m.Logger.Println("Unable to read res body: ", err)
 		return nil, err
 	}
 
 	entity := new(Entity)
 	err = json.Unmarshal(content, entity)
 	if err != nil {
-		m.l.Println("Unable to unmarshal res body: ", err)
+		m.Logger.Println("Unable to unmarshal res body: ", err)
 		return nil, err
 	}
 
 	if entity.Type != "entity" {
-		m.l.Println("Resource is of type", entity.Type)
+		m.Logger.Println("Resource is of type", entity.Type)
 		return nil, ErrResourceDoesNotExist
 	}
 
@@ -215,7 +239,7 @@ func (m *Moviebuff) GetEntity(id string) (*Entity, error) {
 // limit represents the number of records to fetch in a single request.
 // The actual count can be lower than the provided limit. Max value is 50.
 // page represents the page number in the pagination. It starts from 1.
-func (m *Moviebuff) GetResources(resourceType ResourceType, limit, page int) (*Resources, error) {
+func (m *moviebuff) GetResources(resourceType ResourceType, limit, page int) (*Resources, error) {
 	u := "/resources/" + string(resourceType) + "?"
 	if limit != 0 {
 		u += "limit=" + strconv.Itoa(limit)
@@ -225,15 +249,15 @@ func (m *Moviebuff) GetResources(resourceType ResourceType, limit, page int) (*R
 		u += "page=" + strconv.Itoa(page)
 	}
 
-	r, err := prepareRequest(m.token, u)
+	r, err := prepareRequest(m.HostURL, m.StaticToken, u)
 	if err != nil {
-		m.l.Println("Unable to create Request:", err)
+		m.Logger.Println("Unable to create Request:", err)
 		return nil, err
 	}
 
 	res, err := new(http.Client).Do(r)
 	if err != nil {
-		m.l.Println("Unable to make Request:", err)
+		m.Logger.Println("Unable to make Request:", err)
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -245,20 +269,20 @@ func (m *Moviebuff) GetResources(resourceType ResourceType, limit, page int) (*R
 		if res.StatusCode == http.StatusNotFound {
 			return nil, ErrResourceDoesNotExist
 		}
-		m.l.Println("Got invalid res code: ", res.StatusCode)
+		m.Logger.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
 	content, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		m.l.Println("Unable to read res body: ", err)
+		m.Logger.Println("Unable to read res body: ", err)
 		return nil, err
 	}
 
 	resources := new(Resources)
 	err = json.Unmarshal(content, resources)
 	if err != nil {
-		m.l.Println("Unable to unmarshal res body: ", err)
+		m.Logger.Println("Unable to unmarshal res body: ", err)
 		return nil, err
 	}
 

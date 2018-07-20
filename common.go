@@ -26,12 +26,16 @@ func (devNull) Write(p []byte) (int, error) {
 	return len(p), nil
 }
 
-func prepareRequest(token, path string) (*http.Request, error) {
-	r, err := http.NewRequest(http.MethodGet, hostUrl+path, nil)
+func prepareRequest(hostURL, staticToken, path string) (*http.Request, error) {
+	if hostURL == "" {
+		hostURL = hostUrl
+	}
+
+	r, err := http.NewRequest(http.MethodGet, hostURL+path, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	r.Header.Add("X-Api-Key", token)
+	r.Header.Add("X-Api-Key", staticToken)
 	return r, nil
 }
