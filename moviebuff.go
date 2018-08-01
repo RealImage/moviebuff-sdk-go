@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -34,11 +33,6 @@ var (
 )
 
 // Moviebuff allows to access to information in moviebuff using resource ids.
-
-type Logger interface {
-	Println(v ...interface{})
-}
-
 type Moviebuff interface {
 	GetMovie(id string) (*Movie, error)
 	GetPerson(id string) (*Person, error)
@@ -49,7 +43,6 @@ type Moviebuff interface {
 type Config struct {
 	HostURL     string
 	StaticToken string
-	Logger      Logger
 }
 
 // Before accessing any API it need to be initialized.
@@ -60,22 +53,9 @@ type moviebuff struct {
 
 //New returns a QubeAccount interface with a nil logger.
 func New(config Config) Moviebuff {
-	mb := &moviebuff{Config: config}
-	mb.init(config.Logger, config.HostURL, config.StaticToken)
-	return mb
-}
-
-// Init initialize the Moviebuff.
-// token is mandatory. logger is optional however.
-// Return the same Moviebuff object back
-func (m *moviebuff) init(l Logger, hostURL, staticToken string) {
-	if l == nil {
-		l = log.New(new(devNull), "", 0)
+	return &moviebuff{
+		Config: config,
 	}
-
-	m.Logger = l
-	m.HostURL = hostURL
-	m.StaticToken = staticToken
 }
 
 // GetMovie fetch a movie and its basic details for given resource uuid.
@@ -86,44 +66,37 @@ func (m *moviebuff) init(l Logger, hostURL, staticToken string) {
 func (m *moviebuff) GetMovie(id string) (*Movie, error) {
 	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/movies/"+id)
 	if err != nil {
-		m.Logger.Println("Unable to create Request:", err)
 		return nil, err
 	}
 
 	res, err := new(http.Client).Do(r)
 	if err != nil {
-		m.Logger.Println("Unable to make Request:", err)
 		return nil, err
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		log.Println("res.StatusCode...", res.StatusCode)
 		if res.StatusCode == http.StatusForbidden {
 			return nil, ErrInvalidToken
 		}
 		if res.StatusCode == http.StatusNotFound {
 			return nil, ErrResourceDoesNotExist
 		}
-		m.Logger.Println("Got invalid res code: ", r, res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
 	content, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		m.Logger.Println("Unable to read res body: ", err)
 		return nil, err
 	}
 
 	movie := new(Movie)
 	err = json.Unmarshal(content, movie)
 	if err != nil {
-		m.Logger.Println("Unable to unmarshal res body: ", err)
 		return nil, err
 	}
 
 	if movie.Type != "movie" {
-		m.Logger.Println("Resource is of type", movie.Type)
 		return nil, ErrResourceDoesNotExist
 	}
 
@@ -138,13 +111,11 @@ func (m *moviebuff) GetMovie(id string) (*Movie, error) {
 func (m *moviebuff) GetPerson(id string) (*Person, error) {
 	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/people/"+id)
 	if err != nil {
-		m.Logger.Println("Unable to create Request:", err)
 		return nil, err
 	}
 
 	res, err := new(http.Client).Do(r)
 	if err != nil {
-		m.Logger.Println("Unable to make Request:", err)
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -156,25 +127,21 @@ func (m *moviebuff) GetPerson(id string) (*Person, error) {
 		if res.StatusCode == http.StatusNotFound {
 			return nil, ErrResourceDoesNotExist
 		}
-		m.Logger.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
 	content, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		m.Logger.Println("Unable to read res body: ", err)
 		return nil, err
 	}
 
 	person := new(Person)
 	err = json.Unmarshal(content, person)
 	if err != nil {
-		m.Logger.Println("Unable to unmarshal res body: ", err)
 		return nil, err
 	}
 
 	if person.Type != "person" {
-		m.Logger.Println("Resource is of type", person.Type)
 		return nil, ErrResourceDoesNotExist
 	}
 
@@ -188,13 +155,11 @@ func (m *moviebuff) GetPerson(id string) (*Person, error) {
 func (m *moviebuff) GetEntity(id string) (*Entity, error) {
 	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/entities/"+id)
 	if err != nil {
-		m.Logger.Println("Unable to create Request:", err)
 		return nil, err
 	}
 
 	res, err := new(http.Client).Do(r)
 	if err != nil {
-		m.Logger.Println("Unable to make Request:", err)
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -206,25 +171,21 @@ func (m *moviebuff) GetEntity(id string) (*Entity, error) {
 		if res.StatusCode == http.StatusNotFound {
 			return nil, ErrResourceDoesNotExist
 		}
-		m.Logger.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
 	content, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		m.Logger.Println("Unable to read res body: ", err)
 		return nil, err
 	}
 
 	entity := new(Entity)
 	err = json.Unmarshal(content, entity)
 	if err != nil {
-		m.Logger.Println("Unable to unmarshal res body: ", err)
 		return nil, err
 	}
 
 	if entity.Type != "entity" {
-		m.Logger.Println("Resource is of type", entity.Type)
 		return nil, ErrResourceDoesNotExist
 	}
 
@@ -251,13 +212,11 @@ func (m *moviebuff) GetResources(resourceType ResourceType, limit, page int) (*R
 
 	r, err := prepareRequest(m.HostURL, m.StaticToken, u)
 	if err != nil {
-		m.Logger.Println("Unable to create Request:", err)
 		return nil, err
 	}
 
 	res, err := new(http.Client).Do(r)
 	if err != nil {
-		m.Logger.Println("Unable to make Request:", err)
 		return nil, err
 	}
 	defer res.Body.Close()
@@ -269,20 +228,17 @@ func (m *moviebuff) GetResources(resourceType ResourceType, limit, page int) (*R
 		if res.StatusCode == http.StatusNotFound {
 			return nil, ErrResourceDoesNotExist
 		}
-		m.Logger.Println("Got invalid res code: ", res.StatusCode)
 		return nil, ErrResponseNotReceived
 	}
 
 	content, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		m.Logger.Println("Unable to read res body: ", err)
 		return nil, err
 	}
 
 	resources := new(Resources)
 	err = json.Unmarshal(content, resources)
 	if err != nil {
-		m.Logger.Println("Unable to unmarshal res body: ", err)
 		return nil, err
 	}
 
