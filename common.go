@@ -4,6 +4,8 @@ import (
 	"net/http"
 )
 
+const apiKey = "X-Api-Key"
+
 func prepareRequest(hostURL, staticToken, path string) (*http.Request, error) {
 
 	r, err := http.NewRequest(http.MethodGet, hostURL+path, nil)
@@ -11,6 +13,6 @@ func prepareRequest(hostURL, staticToken, path string) (*http.Request, error) {
 		return nil, err
 	}
 
-	r.Header.Add("X-Api-Key", staticToken)
+	r.Header.Add(apiKey, staticToken)
 	return r, nil
 }

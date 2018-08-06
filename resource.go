@@ -1,6 +1,6 @@
 package moviebuff
 
-// Resources contain a paginated list of various resources like movies, people, entities, theatres in moviebuff.
+// Resources contain a paginated list of various resources like movies, people, entities in moviebuff.
 // prev - The previous page in the paginated api. If null there are no more pages before this page.
 // data - The array of items requested by the client. Each item in the array will contain the following fields
 // name, url, uuid, type, poster, moviebuffUrl, apiPath.
@@ -11,6 +11,7 @@ type Resources struct {
 	Next string     `json:"next"`
 }
 
+//Resource contains information about specific type of the resource like movie, people, entity in moviebuff.
 type Resource struct {
 	// Name of the resource
 	Name string `json:"name"`
