@@ -1,79 +1,253 @@
 package moviebuff
 
 import (
-	"log"
-	"os"
-	"runtime"
+	"net/http"
+	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMoviebuff_GetMovie(t *testing.T) {
-	m := new(Moviebuff)
-	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
-	_, err := m.GetMovie("dd083a9d-823b-4ffc-b057-d8885840fcf7")
-	ShouldBeEqual(t, nil, err)
-}
 
-func TestMoviebuff_GetMovie404(t *testing.T) {
-	m := new(Moviebuff)
-	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
-	_, err := m.GetMovie("9494a132-4447-42e9-ae49-a66ac071a36a")
-	ShouldBeEqual(t, ErrResourceDoesNotExist, err)
-}
+	var testCases = []struct {
+		desc         string
+		method       string
+		respStatus   int
+		respBody     string
+		expectedErr  error
+		expectedResp *Movie
+	}{
+		{
+			desc:       "get movie 200 response",
+			method:     "GET",
+			respStatus: http.StatusOK,
+			respBody:   (`{"name":"Test_Movie", "type":"movie"}`),
+			expectedResp: &Movie{
+				Name: "Test_Movie",
+				Type: "movie",
+			},
+		}, {
+			desc:        "get movie 403 response",
+			method:      "GET",
+			respStatus:  http.StatusForbidden,
+			respBody:    (`{"name":"Test_Movie", "type":"movie"}`),
+			expectedErr: ErrInvalidToken,
+		}, {
+			desc:        "get movie 404 response",
+			method:      "GET",
+			respStatus:  http.StatusNotFound,
+			respBody:    (`{"name":"Test_Movie", "type":"movie"}`),
+			expectedErr: ErrResourceDoesNotExist,
+		},
+	}
 
-func TestMoviebuff_GetMovieInvalidResource(t *testing.T) {
-	m := new(Moviebuff)
-	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
-	_, err := m.GetMovie("9494a132-4447-42e9-ae49-a66ac071a36a")
-	ShouldBeEqual(t, ErrResourceDoesNotExist, err)
-}
+	for _, testCase := range testCases {
+		t.Run(testCase.desc, func(t *testing.T) {
+			assert := assert.New(t)
 
-func TestMovie_GetEarliestReleaseYear(t *testing.T) {
-	m := new(Moviebuff)
-	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
-	mv, err := m.GetMovie("dd083a9d-823b-4ffc-b057-d8885840fcf7")
-	ShouldBeEqual(t, 2014, mv.GetEarliestReleaseYear())
-	ShouldBeEqual(t, nil, err)
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,
+				r *http.Request) {
+				w.WriteHeader(testCase.respStatus)
+				w.Write([]byte(testCase.respBody))
+			}))
+
+			defer ts.Close()
+
+			moviebuffApiServer := New(Config{
+				HostURL:     ts.URL,
+				StaticToken: "staticToken",
+			})
+
+			data, err := moviebuffApiServer.GetMovie("")
+			if err != nil {
+				assert.EqualValues(testCase.expectedErr, err)
+			} else {
+				assert.Equal(testCase.expectedResp, data)
+			}
+		})
+	}
 }
 
 func TestMoviebuff_GetPerson(t *testing.T) {
-	m := new(Moviebuff)
-	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
-	_, err := m.GetPerson("9494a132-4447-42e9-ae49-a66ac071a36a")
-	ShouldBeEqual(t, nil, err)
-}
 
-func TestMoviebuff_GetPersonInvalidResource(t *testing.T) {
-	m := new(Moviebuff)
-	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
-	_, err := m.GetPerson("dd083a9d-823b-4ffc-b057-d8885840fcf7")
-	ShouldBeEqual(t, ErrResourceDoesNotExist, err)
+	var testCases = []struct {
+		desc         string
+		method       string
+		respStatus   int
+		respBody     string
+		expectedErr  error
+		expectedResp *Person
+	}{
+		{
+			desc:       "get person 200 response",
+			method:     "GET",
+			respStatus: http.StatusOK,
+			respBody:   (`{"name":"Test_Person", "type":"person"}`),
+			expectedResp: &Person{
+				Name: "Test_Person",
+				Type: "person",
+			},
+		}, {
+			desc:        "get person 403 response",
+			method:      "GET",
+			respStatus:  http.StatusForbidden,
+			respBody:    (`{"name":"Test_Person", "type":"person"}`),
+			expectedErr: ErrInvalidToken,
+		}, {
+			desc:        "get person 404 response",
+			method:      "GET",
+			respStatus:  http.StatusNotFound,
+			respBody:    (`{"name":"Test_Person", "type":"person"}`),
+			expectedErr: ErrResourceDoesNotExist,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.desc, func(t *testing.T) {
+			assert := assert.New(t)
+
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,
+				r *http.Request) {
+				w.WriteHeader(testCase.respStatus)
+				w.Write([]byte(testCase.respBody))
+			}))
+
+			defer ts.Close()
+
+			moviebuffApiServer := New(Config{
+				HostURL:     ts.URL,
+				StaticToken: "staticToken",
+			})
+
+			data, err := moviebuffApiServer.GetPerson("")
+			if err != nil {
+				assert.EqualValues(testCase.expectedErr, err)
+			} else {
+				assert.Equal(testCase.expectedResp, data)
+			}
+		})
+	}
 }
 
 func TestMoviebuff_GetEntity(t *testing.T) {
-	m := new(Moviebuff)
-	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
-	_, err := m.GetEntity("1e14fd01-3a4f-4b0b-a164-fe50c0fab13d")
-	ShouldBeEqual(t, nil, err)
-}
 
-func TestMoviebuff_GetEntityInvalidResource(t *testing.T) {
-	m := new(Moviebuff)
-	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
-	_, err := m.GetEntity("9494a132-4447-42e9-ae49-a66ac071a36a")
-	ShouldBeEqual(t, ErrResourceDoesNotExist, err)
+	var testCases = []struct {
+		desc         string
+		method       string
+		respStatus   int
+		respBody     string
+		expectedErr  error
+		expectedResp *Entity
+	}{
+		{
+			desc:       "get entity 200 response",
+			method:     "GET",
+			respStatus: http.StatusOK,
+			respBody:   (`{"name":"Test_Entity", "type":"entity"}`),
+			expectedResp: &Entity{
+				Name: "Test_Entity",
+				Type: "entity",
+			},
+		}, {
+			desc:        "get entity 403 response",
+			method:      "GET",
+			respStatus:  http.StatusForbidden,
+			respBody:    (`{"name":"Test_Entity", "type":"entity"}`),
+			expectedErr: ErrInvalidToken,
+		}, {
+			desc:        "get entity 404 response",
+			method:      "GET",
+			respStatus:  http.StatusNotFound,
+			respBody:    (`{"name":"Test_Entity", "type":"entity"}`),
+			expectedErr: ErrResourceDoesNotExist,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.desc, func(t *testing.T) {
+			assert := assert.New(t)
+
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,
+				r *http.Request) {
+				w.WriteHeader(testCase.respStatus)
+				w.Write([]byte(testCase.respBody))
+			}))
+
+			defer ts.Close()
+
+			moviebuffApiServer := New(Config{
+				HostURL:     ts.URL,
+				StaticToken: "staticToken",
+			})
+
+			data, err := moviebuffApiServer.GetEntity("")
+			if err != nil {
+				assert.EqualValues(testCase.expectedErr, err)
+			} else {
+				assert.Equal(testCase.expectedResp, data)
+			}
+		})
+	}
 }
 
 func TestMoviebuff_GetResources(t *testing.T) {
-	m := new(Moviebuff)
-	m.Init(os.Getenv("API_TOKEN"), log.New(os.Stdout, "", log.Llongfile))
-	_, err := m.GetResources("people", 20, 1)
-	ShouldBeEqual(t, nil, err)
-}
 
-func ShouldBeEqual(t *testing.T, expected, actual interface{}) {
-	if expected != actual {
-		_, fn, line, _ := runtime.Caller(1)
-		t.Fatalf("Expected %v. Got %v. Location: %s:%d", expected, actual, fn, line)
+	var testCases = []struct {
+		desc         string
+		method       string
+		respStatus   int
+		respBody     string
+		expectedErr  error
+		expectedResp *Resources
+	}{
+		{
+			desc:       "get entity 200 response",
+			method:     "GET",
+			respStatus: http.StatusOK,
+			respBody:   (`{"prev":"1",  "next":"2"}`),
+			expectedResp: &Resources{
+				Prev: "1",
+				Next: "2",
+			},
+		}, {
+			desc:        "get entity 403 response",
+			method:      "GET",
+			respStatus:  http.StatusForbidden,
+			respBody:    (`{"prev":"1", "next":"2"}`),
+			expectedErr: ErrInvalidToken,
+		}, {
+			desc:        "get entity 404 response",
+			method:      "GET",
+			respStatus:  http.StatusNotFound,
+			respBody:    (`{"prev":"1", "next":"2"}`),
+			expectedErr: ErrResourceDoesNotExist,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.desc, func(t *testing.T) {
+			assert := assert.New(t)
+
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,
+				r *http.Request) {
+				w.WriteHeader(testCase.respStatus)
+				w.Write([]byte(testCase.respBody))
+			}))
+
+			defer ts.Close()
+
+			moviebuffApiServer := New(Config{
+				HostURL:     ts.URL,
+				StaticToken: "staticToken",
+			})
+
+			data, err := moviebuffApiServer.GetResources("", 0, 0)
+			if err != nil {
+				assert.EqualValues(testCase.expectedErr, err)
+			} else {
+				assert.Equal(testCase.expectedResp, data)
+			}
+		})
 	}
 }
