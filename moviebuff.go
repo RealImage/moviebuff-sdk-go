@@ -280,13 +280,13 @@ func (m *moviebuff) GetCertifications(country string) ([]Certification, error) {
 		return nil, err
 	}
 
-	data := struct {
+	certifications := struct {
 		Data []Certification `json:"data"`
 	}{}
-	err = json.Unmarshal(content, &data)
+	err = json.Unmarshal(content, &certifications)
 	if err != nil {
 		return nil, err
 	}
 
-	return data.Data, nil
+	return certifications.Data, nil
 }
