@@ -48,3 +48,6 @@ For Detailed Code Documentation click [here](https://godoc.org/github.com/RealIm
      usually organizations like production companies,
      service providers, etc.
 
+* Get Certifications
+    A Certification contains a readable code as well as UUID along with whether the certification indicates that the movie is safe for children and the country the certification is applicable for. A movie has multiple certifications, one for each country it is released in.
+

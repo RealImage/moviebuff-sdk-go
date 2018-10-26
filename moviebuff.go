@@ -38,6 +38,7 @@ type Moviebuff interface {
 	GetPerson(id string) (*Person, error)
 	GetEntity(id string) (*Entity, error)
 	GetResources(resourceType ResourceType, limit, page int) (*Resources, error)
+	GetCertifications(country string) ([]Certification, error)
 }
 
 type Config struct {
@@ -243,4 +244,49 @@ func (m *moviebuff) GetResources(resourceType ResourceType, limit, page int) (*R
 	}
 
 	return resources, nil
+}
+
+// GetCertifications fetches a list of all certifications available on Moviebuff
+
+//GetCertifications takes an optional argument country which can be the Qube Wire Cinemas country UUID or the ISO 2-digit code for this country, eg "IN". If country is provided, GetCertifications returns certifications available for the given country
+//Pass empty value for country to get a list of all certifications across countries
+func (m *moviebuff) GetCertifications(country string) ([]Certification, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/certifications")
+	if err != nil {
+		return nil, err
+	}
+	if country != "" {
+		addQueryParams(r, map[string]string{"country": country})
+	}
+
+	res, err := new(http.Client).Do(r)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		if res.StatusCode == http.StatusForbidden {
+			return nil, ErrInvalidToken
+		}
+		if res.StatusCode == http.StatusNotFound {
+			return nil, ErrResourceDoesNotExist
+		}
+		return nil, ErrResponseNotReceived
+	}
+
+	content, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	certifications := struct {
+		Data []Certification `json:"data"`
+	}{}
+	err = json.Unmarshal(content, &certifications)
+	if err != nil {
+		return nil, err
+	}
+
+	return certifications.Data, nil
 }

@@ -16,3 +16,11 @@ func prepareRequest(hostURL, staticToken, path string) (*http.Request, error) {
 	r.Header.Add(apiKey, staticToken)
 	return r, nil
 }
+
+func addQueryParams(r *http.Request, queryParams map[string]string) {
+	q := r.URL.Query()
+	for k, v := range queryParams {
+		q.Add(k, v)
+	}
+	r.URL.RawQuery = q.Encode()
+}
