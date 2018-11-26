@@ -399,3 +399,59 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 		})
 	}
 }
+
+func TestMoviebuff_GetHolidayCalendar(t *testing.T) {
+	var testCases = []struct {
+		countryID    string
+		calendarID   string
+		respBody     string
+		expectedResp *Calendar
+		respStatus   int
+	}{
+		{
+
+			countryID:  "16a917fb-e15e-43b4-8ee9-5c3e822eb332",
+			calendarID: "en.indian#holiday@group.v.calendar.google.com",
+
+			respBody: `{
+				"calendarId": "sample calendar ID",
+				"name": "Holidays in India",
+				"holidays": [],
+				"syncToken": "sample sync token",
+				"timeZone": "Asia/Calcutta"
+				}`,
+
+			expectedResp: &Calendar{
+				ID:        "sample calendar ID",
+				Name:      "Holidays in India",
+				Holidays:  []Holiday{},
+				SyncToken: "sample sync token",
+				TimeZone:  "Asia/Calcutta",
+			},
+
+			respStatus: 200,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run("Get Holiday Calendar", func(t *testing.T) {
+			assert := assert.New(t)
+
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,
+				r *http.Request) {
+				w.WriteHeader(testCase.respStatus)
+				w.Write([]byte(testCase.respBody))
+			}))
+
+			mb := New(Config{
+				HostURL:     ts.URL,
+				StaticToken: "staticToken",
+			})
+
+			data, err := mb.GetHolidayCalendar(testCase.countryID)
+			assert.Equal(testCase.expectedResp, data)
+			assert.NoError(err)
+		})
+	}
+
+}
