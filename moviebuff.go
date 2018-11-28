@@ -13,7 +13,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -305,28 +304,28 @@ func (m *moviebuff) GetHolidayCalendar(countryID string) (*Calendar, error) {
 	}
 	defer res.Body.Close()
 
-	if res.StatusCode != http.StatusOK {
-		if res.StatusCode == http.StatusForbidden {
-			return nil, ErrInvalidToken
+	switch res.StatusCode {
+	case http.StatusForbidden:
+		return nil, ErrInvalidToken
+
+	case http.StatusNotFound:
+		return nil, ErrResourceDoesNotExist
+
+	case http.StatusOK:
+		calendarResp, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
 		}
-		if res.StatusCode == http.StatusNotFound {
-			return nil, ErrResourceDoesNotExist
+
+		calendarInfo := new(Calendar)
+		err = json.Unmarshal(calendarResp, calendarInfo)
+		if err != nil {
+			return nil, err
 		}
+		return calendarInfo, nil
+
+	default:
 		return nil, ErrResponseNotReceived
 	}
 
-	calendarResp, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	calendarInfo := new(Calendar)
-	err = json.Unmarshal(calendarResp, calendarInfo)
-	if err != nil {
-		log.Println(string(calendarResp))
-		log.Println(err)
-		return nil, err
-	}
-
-	return calendarInfo, nil
 }
