@@ -39,6 +39,7 @@ type Moviebuff interface {
 	GetEntity(id string) (*Entity, error)
 	GetResources(resourceType ResourceType, limit, page int) (*Resources, error)
 	GetCertifications(country string) ([]Certification, error)
+	GetHolidayCalendar(countryID string) (*Calendar, error)
 }
 
 type Config struct {
@@ -289,4 +290,42 @@ func (m *moviebuff) GetCertifications(country string) ([]Certification, error) {
 	}
 
 	return certifications.Data, nil
+}
+
+func (m *moviebuff) GetHolidayCalendar(countryID string) (*Calendar, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/holidays/"+countryID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := new(http.Client).Do(r)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	switch res.StatusCode {
+	case http.StatusForbidden:
+		return nil, ErrInvalidToken
+
+	case http.StatusNotFound:
+		return nil, ErrResourceDoesNotExist
+
+	case http.StatusOK:
+		calendarResp, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		calendarInfo := new(Calendar)
+		err = json.Unmarshal(calendarResp, calendarInfo)
+		if err != nil {
+			return nil, err
+		}
+		return calendarInfo, nil
+
+	default:
+		return nil, ErrResponseNotReceived
+	}
+
 }
