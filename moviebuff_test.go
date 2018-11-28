@@ -416,15 +416,37 @@ func TestMoviebuff_GetHolidayCalendar(t *testing.T) {
 			respBody: `{
 				"calendarId": "sample calendar ID",
 				"name": "Holidays in India",
-				"holidays": [],
+				"holidays": [
+					{
+						"id": "20180414_60o30d9h60o30c1g60o30dr568",
+						"name": "Vaisakhi",
+						"date": "2018-04-14"
+					},
+					{
+						"id": "20181106_60o30d9h60o30c1g60o30dr565",
+						"name": "Diwali",
+						"date": "2018-11-06"
+					}
+				],
 				"syncToken": "sample sync token",
 				"timeZone": "Asia/Calcutta"
 				}`,
 
 			expectedResp: &Calendar{
-				ID:        "sample calendar ID",
-				Name:      "Holidays in India",
-				Holidays:  []Holiday{},
+				ID:   "sample calendar ID",
+				Name: "Holidays in India",
+				Holidays: []Holiday{
+					{
+						ID:   "20180414_60o30d9h60o30c1g60o30dr568",
+						Name: "Vaisakhi",
+						Date: "2018-04-14",
+					},
+					{
+						ID:   "20181106_60o30d9h60o30c1g60o30dr565",
+						Name: "Diwali",
+						Date: "2018-11-06",
+					},
+				},
 				SyncToken: "sample sync token",
 				TimeZone:  "Asia/Calcutta",
 			},
