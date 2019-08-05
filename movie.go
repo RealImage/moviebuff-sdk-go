@@ -225,6 +225,14 @@ type Movie struct {
 		AE string `json:"AE"`
 	} `json:"releaseStatuses"`
 
+	ThirdPartyIdentifiers []struct {
+		IDs    []string `json:"ids"`
+		Source struct {
+			UUID string `json:"uuid"`
+			Name string `json:"name"`
+		} `json:"source"`
+	} `json:"thirdPartyIdentifiers"`
+
 	MoviebuffURL string `json:"moviebuffUrl"`
 	APIPath      string `json:"apiPath"`
 }
@@ -238,4 +246,15 @@ func (m *Movie) GetEarliestReleaseYear() (releaseYear int) {
 		}
 	}
 	return
+}
+
+// GetThirdPartyIDsBySource returns third-party IDs for provided source.
+// Returns nil if source ID is not available
+func (m *Movie) GetThirdPartyIDsBySource(sourceID string) []string {
+	for _, id := range m.ThirdPartyIdentifiers {
+		if id.Source.UUID == sourceID {
+			return id.IDs
+		}
+	}
+	return nil
 }
