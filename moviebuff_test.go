@@ -1,6 +1,7 @@
 package moviebuff
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -59,7 +60,7 @@ func TestMoviebuff_GetMovie(t *testing.T) {
 				StaticToken: "staticToken",
 			})
 
-			data, err := moviebuffApiServer.GetMovie("")
+			data, err := moviebuffApiServer.GetMovie(context.Background(), "")
 			if err != nil {
 				assert.EqualValues(testCase.expectedErr, err)
 			} else {
@@ -120,7 +121,7 @@ func TestMoviebuff_GetPerson(t *testing.T) {
 				StaticToken: "staticToken",
 			})
 
-			data, err := moviebuffApiServer.GetPerson("")
+			data, err := moviebuffApiServer.GetPerson(context.Background(), "")
 			if err != nil {
 				assert.EqualValues(testCase.expectedErr, err)
 			} else {
@@ -181,7 +182,7 @@ func TestMoviebuff_GetEntity(t *testing.T) {
 				StaticToken: "staticToken",
 			})
 
-			data, err := moviebuffApiServer.GetEntity("")
+			data, err := moviebuffApiServer.GetEntity(context.Background(), "")
 			if err != nil {
 				assert.EqualValues(testCase.expectedErr, err)
 			} else {
@@ -242,7 +243,7 @@ func TestMoviebuff_GetResources(t *testing.T) {
 				StaticToken: "staticToken",
 			})
 
-			data, err := moviebuffApiServer.GetResources("", 0, 0)
+			data, err := moviebuffApiServer.GetResources(context.Background(), "", 0, 0)
 			if err != nil {
 				assert.EqualValues(testCase.expectedErr, err)
 			} else {
@@ -389,7 +390,7 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 				StaticToken: "staticToken",
 			})
 
-			data, err := mb.GetCertifications(testCase.country)
+			data, err := mb.GetCertifications(context.Background(), testCase.country)
 			if testCase.expectedErr != nil {
 				assert.EqualValues(testCase.expectedErr, err)
 			} else {
@@ -470,7 +471,7 @@ func TestMoviebuff_GetHolidayCalendar(t *testing.T) {
 				StaticToken: "staticToken",
 			})
 
-			data, err := mb.GetHolidayCalendar(testCase.countryID)
+			data, err := mb.GetHolidayCalendar(context.Background(), testCase.countryID)
 			assert.Equal(testCase.expectedResp, data)
 			assert.NoError(err)
 		})
