@@ -1,8 +1,8 @@
 module github.com/RealImage/moviebuff-sdk-go
 
 require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/stretchr/testify v1.3.0
-	go.elastic.co/apm/module/apmhttp v1.5.0
 )
 
 go 1.13
