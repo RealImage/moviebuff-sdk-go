@@ -10,14 +10,11 @@
 package moviebuff
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
-
-	"go.elastic.co/apm/module/apmhttp"
 )
 
 // Type of resources supported by moviebuff
@@ -37,12 +34,12 @@ var (
 
 // Moviebuff allows to access to information in moviebuff using resource ids.
 type Moviebuff interface {
-	GetMovie(ctx context.Context, id string) (*Movie, error)
-	GetPerson(ctx context.Context, id string) (*Person, error)
-	GetEntity(ctx context.Context, id string) (*Entity, error)
-	GetResources(ctx context.Context, resourceType ResourceType, limit, page int) (*Resources, error)
-	GetCertifications(ctx context.Context, country string) ([]Certification, error)
-	GetHolidayCalendar(ctx context.Context, countryID string) (*Calendar, error)
+	GetMovie(id string) (*Movie, error)
+	GetPerson(id string) (*Person, error)
+	GetEntity(id string) (*Entity, error)
+	GetResources(resourceType ResourceType, limit, page int) (*Resources, error)
+	GetCertifications(country string) ([]Certification, error)
+	GetHolidayCalendar(countryID string) (*Calendar, error)
 }
 
 type Config struct {
@@ -56,7 +53,7 @@ type moviebuff struct {
 	Config
 }
 
-//New returns a QubeAccount interface with a nil logger.
+// New returns a Moviebuff interface.
 func New(config Config) Moviebuff {
 	return &moviebuff{
 		Config: config,
@@ -68,14 +65,13 @@ func New(config Config) Moviebuff {
 // Instead of the UUID, this can also be the URL of the movie as seen on moviebuff.com, like 12-years-a-slave
 // Details include release dates, certifications, cast, crew, trailers, posters, purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
-func (m *moviebuff) GetMovie(ctx context.Context, id string) (*Movie, error) {
-	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/resources/movies/"+id)
+func (m *moviebuff) GetMovie(id string) (*Movie, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/movies/"+id)
 	if err != nil {
 		return nil, err
 	}
 
-	client := apmhttp.WrapClient(http.DefaultClient)
-	res, err := client.Do(r)
+	res, err := new(http.Client).Do(r)
 	if err != nil {
 		return nil, err
 	}
@@ -114,14 +110,13 @@ func (m *moviebuff) GetMovie(ctx context.Context, id string) (*Movie, error) {
 // Instead of the UUID, this can also be the URL of the person as seen on moviebuff.com, like amitabh-bachchan
 // The people in the database include actors, directors, support personnel, etc.
 // Moviebuff aims to document most, if not all, of the individuals involved in a film.
-func (m *moviebuff) GetPerson(ctx context.Context, id string) (*Person, error) {
-	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/resources/people/"+id)
+func (m *moviebuff) GetPerson(id string) (*Person, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/people/"+id)
 	if err != nil {
 		return nil, err
 	}
 
-	client := apmhttp.WrapClient(http.DefaultClient)
-	res, err := client.Do(r)
+	res, err := new(http.Client).Do(r)
 	if err != nil {
 		return nil, err
 	}
@@ -159,14 +154,13 @@ func (m *moviebuff) GetPerson(ctx context.Context, id string) (*Person, error) {
 
 // Instead of the UUID, this can also be the URL of the company as seen on moviebuff.com: yash-raj-films .
 // Entities are usually organizations like production companies, service providers, etc.
-func (m *moviebuff) GetEntity(ctx context.Context, id string) (*Entity, error) {
-	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/resources/entities/"+id)
+func (m *moviebuff) GetEntity(id string) (*Entity, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/entities/"+id)
 	if err != nil {
 		return nil, err
 	}
 
-	client := apmhttp.WrapClient(http.DefaultClient)
-	res, err := client.Do(r)
+	res, err := new(http.Client).Do(r)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +202,7 @@ func (m *moviebuff) GetEntity(ctx context.Context, id string) (*Entity, error) {
 // limit represents the number of records to fetch in a single request.
 // The actual count can be lower than the provided limit. Max value is 50.
 // page represents the page number in the pagination. It starts from 1.
-func (m *moviebuff) GetResources(ctx context.Context, resourceType ResourceType, limit, page int) (*Resources, error) {
+func (m *moviebuff) GetResources(resourceType ResourceType, limit, page int) (*Resources, error) {
 	u := "/resources/" + string(resourceType) + "?"
 	if limit != 0 {
 		u += "limit=" + strconv.Itoa(limit)
@@ -218,13 +212,12 @@ func (m *moviebuff) GetResources(ctx context.Context, resourceType ResourceType,
 		u += "page=" + strconv.Itoa(page)
 	}
 
-	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, u)
+	r, err := prepareRequest(m.HostURL, m.StaticToken, u)
 	if err != nil {
 		return nil, err
 	}
 
-	client := apmhttp.WrapClient(http.DefaultClient)
-	res, err := client.Do(r)
+	res, err := new(http.Client).Do(r)
 	if err != nil {
 		return nil, err
 	}
@@ -258,8 +251,8 @@ func (m *moviebuff) GetResources(ctx context.Context, resourceType ResourceType,
 
 //GetCertifications takes an optional argument country which can be the Qube Wire Cinemas country UUID or the ISO 2-digit code for this country, eg "IN". If country is provided, GetCertifications returns certifications available for the given country
 //Pass empty value for country to get a list of all certifications across countries
-func (m *moviebuff) GetCertifications(ctx context.Context, country string) ([]Certification, error) {
-	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/certifications")
+func (m *moviebuff) GetCertifications(country string) ([]Certification, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/certifications")
 	if err != nil {
 		return nil, err
 	}
@@ -267,8 +260,7 @@ func (m *moviebuff) GetCertifications(ctx context.Context, country string) ([]Ce
 		addQueryParams(r, map[string]string{"country": country})
 	}
 
-	client := apmhttp.WrapClient(http.DefaultClient)
-	res, err := client.Do(r)
+	res, err := new(http.Client).Do(r)
 	if err != nil {
 		return nil, err
 	}
@@ -300,14 +292,13 @@ func (m *moviebuff) GetCertifications(ctx context.Context, country string) ([]Ce
 	return certifications.Data, nil
 }
 
-func (m *moviebuff) GetHolidayCalendar(ctx context.Context, countryID string) (*Calendar, error) {
-	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/holidays/"+countryID)
+func (m *moviebuff) GetHolidayCalendar(countryID string) (*Calendar, error) {
+	r, err := prepareRequest(m.HostURL, m.StaticToken, "/holidays/"+countryID)
 	if err != nil {
 		return nil, err
 	}
 
-	client := apmhttp.WrapClient(http.DefaultClient)
-	res, err := client.Do(r)
+	res, err := new(http.Client).Do(r)
 	if err != nil {
 		return nil, err
 	}

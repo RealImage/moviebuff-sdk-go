@@ -1,15 +1,14 @@
 package moviebuff
 
 import (
-	"context"
 	"net/http"
 )
 
 const apiKey = "X-Api-Key"
 
-func prepareRequest(ctx context.Context, hostURL, staticToken, path string) (*http.Request, error) {
+func prepareRequest(hostURL, staticToken, path string) (*http.Request, error) {
 
-	r, err := http.NewRequestWithContext(ctx, http.MethodGet, hostURL+path, nil)
+	r, err := http.NewRequest(http.MethodGet, hostURL+path, nil)
 	if err != nil {
 		return nil, err
 	}
