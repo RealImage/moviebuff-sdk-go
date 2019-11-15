@@ -16,6 +16,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	v1 "github.com/RealImage/moviebuff-sdk-go"
 )
 
 // Type of resources supported by moviebuff
@@ -35,34 +37,33 @@ var (
 
 // Moviebuff allows to access to information in moviebuff using resource ids.
 type Moviebuff interface {
-	GetMovie(ctx context.Context, id string) (*Movie, error)
-	GetPerson(ctx context.Context, id string) (*Person, error)
-	GetEntity(ctx context.Context, id string) (*Entity, error)
-	GetResources(ctx context.Context, resourceType ResourceType, limit, page int) (*Resources, error)
-	GetCertifications(ctx context.Context, country string) ([]Certification, error)
-	GetHolidayCalendar(ctx context.Context, countryID string) (*Calendar, error)
+	GetMovie(ctx context.Context, id string) (*v1.Movie, error)
+	GetPerson(ctx context.Context, id string) (*v1.Person, error)
+	GetEntity(ctx context.Context, id string) (*v1.Entity, error)
+	GetResources(ctx context.Context, resourceType ResourceType, limit, page int) (*v1.Resources, error)
+	GetCertifications(ctx context.Context, country string) ([]v1.Certification, error)
+	GetHolidayCalendar(ctx context.Context, countryID string) (*v1.Calendar, error)
 }
 
 type Config struct {
 	HostURL     string
 	StaticToken string
+	Client      *http.Client
 }
 
 // Before accessing any API it need to be initialized.
 // The Moviebuff is a service that offers information about movies, people, entities.
 type moviebuff struct {
 	Config
-	Client *http.Client
 }
 
-// New returns a Moviebuff interface with specified client.
-func New(config Config, client *http.Client) Moviebuff {
-	if client == nil {
-		client = http.DefaultClient
+// New returns a Moviebuff interface.
+func New(config Config) Moviebuff {
+	if config.Client == nil {
+		config.Client = http.DefaultClient
 	}
 	return &moviebuff{
 		Config: config,
-		Client: client,
 	}
 }
 
@@ -71,7 +72,7 @@ func New(config Config, client *http.Client) Moviebuff {
 // Instead of the UUID, this can also be the URL of the movie as seen on moviebuff.com, like 12-years-a-slave
 // Details include release dates, certifications, cast, crew, trailers, posters, purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
-func (m *moviebuff) GetMovie(ctx context.Context, id string) (*Movie, error) {
+func (m *moviebuff) GetMovie(ctx context.Context, id string) (*v1.Movie, error) {
 	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/resources/movies/"+id)
 	if err != nil {
 		return nil, err
@@ -98,7 +99,7 @@ func (m *moviebuff) GetMovie(ctx context.Context, id string) (*Movie, error) {
 		return nil, err
 	}
 
-	movie := new(Movie)
+	movie := new(v1.Movie)
 	err = json.Unmarshal(content, movie)
 	if err != nil {
 		return nil, err
@@ -116,7 +117,7 @@ func (m *moviebuff) GetMovie(ctx context.Context, id string) (*Movie, error) {
 // Instead of the UUID, this can also be the URL of the person as seen on moviebuff.com, like amitabh-bachchan
 // The people in the database include actors, directors, support personnel, etc.
 // Moviebuff aims to document most, if not all, of the individuals involved in a film.
-func (m *moviebuff) GetPerson(ctx context.Context, id string) (*Person, error) {
+func (m *moviebuff) GetPerson(ctx context.Context, id string) (*v1.Person, error) {
 	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/resources/people/"+id)
 	if err != nil {
 		return nil, err
@@ -143,7 +144,7 @@ func (m *moviebuff) GetPerson(ctx context.Context, id string) (*Person, error) {
 		return nil, err
 	}
 
-	person := new(Person)
+	person := new(v1.Person)
 	err = json.Unmarshal(content, person)
 	if err != nil {
 		return nil, err
@@ -160,7 +161,7 @@ func (m *moviebuff) GetPerson(ctx context.Context, id string) (*Person, error) {
 
 // Instead of the UUID, this can also be the URL of the company as seen on moviebuff.com: yash-raj-films .
 // Entities are usually organizations like production companies, service providers, etc.
-func (m *moviebuff) GetEntity(ctx context.Context, id string) (*Entity, error) {
+func (m *moviebuff) GetEntity(ctx context.Context, id string) (*v1.Entity, error) {
 	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/resources/entities/"+id)
 	if err != nil {
 		return nil, err
@@ -187,7 +188,7 @@ func (m *moviebuff) GetEntity(ctx context.Context, id string) (*Entity, error) {
 		return nil, err
 	}
 
-	entity := new(Entity)
+	entity := new(v1.Entity)
 	err = json.Unmarshal(content, entity)
 	if err != nil {
 		return nil, err
@@ -208,7 +209,7 @@ func (m *moviebuff) GetEntity(ctx context.Context, id string) (*Entity, error) {
 // limit represents the number of records to fetch in a single request.
 // The actual count can be lower than the provided limit. Max value is 50.
 // page represents the page number in the pagination. It starts from 1.
-func (m *moviebuff) GetResources(ctx context.Context, resourceType ResourceType, limit, page int) (*Resources, error) {
+func (m *moviebuff) GetResources(ctx context.Context, resourceType ResourceType, limit, page int) (*v1.Resources, error) {
 	u := "/resources/" + string(resourceType) + "?"
 	if limit != 0 {
 		u += "limit=" + strconv.Itoa(limit)
@@ -244,7 +245,7 @@ func (m *moviebuff) GetResources(ctx context.Context, resourceType ResourceType,
 		return nil, err
 	}
 
-	resources := new(Resources)
+	resources := new(v1.Resources)
 	err = json.Unmarshal(content, resources)
 	if err != nil {
 		return nil, err
@@ -257,7 +258,7 @@ func (m *moviebuff) GetResources(ctx context.Context, resourceType ResourceType,
 
 //GetCertifications takes an optional argument country which can be the Qube Wire Cinemas country UUID or the ISO 2-digit code for this country, eg "IN". If country is provided, GetCertifications returns certifications available for the given country
 //Pass empty value for country to get a list of all certifications across countries
-func (m *moviebuff) GetCertifications(ctx context.Context, country string) ([]Certification, error) {
+func (m *moviebuff) GetCertifications(ctx context.Context, country string) ([]v1.Certification, error) {
 	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/certifications")
 	if err != nil {
 		return nil, err
@@ -288,7 +289,7 @@ func (m *moviebuff) GetCertifications(ctx context.Context, country string) ([]Ce
 	}
 
 	certifications := struct {
-		Data []Certification `json:"data"`
+		Data []v1.Certification `json:"data"`
 	}{}
 	err = json.Unmarshal(content, &certifications)
 	if err != nil {
@@ -298,7 +299,7 @@ func (m *moviebuff) GetCertifications(ctx context.Context, country string) ([]Ce
 	return certifications.Data, nil
 }
 
-func (m *moviebuff) GetHolidayCalendar(ctx context.Context, countryID string) (*Calendar, error) {
+func (m *moviebuff) GetHolidayCalendar(ctx context.Context, countryID string) (*v1.Calendar, error) {
 	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/holidays/"+countryID)
 	if err != nil {
 		return nil, err
@@ -323,7 +324,7 @@ func (m *moviebuff) GetHolidayCalendar(ctx context.Context, countryID string) (*
 			return nil, err
 		}
 
-		calendarInfo := new(Calendar)
+		calendarInfo := new(v1.Calendar)
 		err = json.Unmarshal(calendarResp, calendarInfo)
 		if err != nil {
 			return nil, err

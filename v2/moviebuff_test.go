@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	v1 "github.com/RealImage/moviebuff-sdk-go"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,14 +18,14 @@ func TestMoviebuff_GetMovie(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp *Movie
+		expectedResp *v1.Movie
 	}{
 		{
 			desc:       "get movie 200 response",
 			method:     "GET",
 			respStatus: http.StatusOK,
 			respBody:   (`{"name":"Test_Movie", "type":"movie"}`),
-			expectedResp: &Movie{
+			expectedResp: &v1.Movie{
 				Name: "Test_Movie",
 				Type: "movie",
 			},
@@ -58,7 +59,7 @@ func TestMoviebuff_GetMovie(t *testing.T) {
 			moviebuffApiServer := New(Config{
 				HostURL:     ts.URL,
 				StaticToken: "staticToken",
-			}, nil)
+			})
 
 			data, err := moviebuffApiServer.GetMovie(context.Background(), "")
 			if err != nil {
@@ -78,14 +79,14 @@ func TestMoviebuff_GetPerson(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp *Person
+		expectedResp *v1.Person
 	}{
 		{
 			desc:       "get person 200 response",
 			method:     "GET",
 			respStatus: http.StatusOK,
 			respBody:   (`{"name":"Test_Person", "type":"person"}`),
-			expectedResp: &Person{
+			expectedResp: &v1.Person{
 				Name: "Test_Person",
 				Type: "person",
 			},
@@ -119,7 +120,7 @@ func TestMoviebuff_GetPerson(t *testing.T) {
 			moviebuffApiServer := New(Config{
 				HostURL:     ts.URL,
 				StaticToken: "staticToken",
-			}, nil)
+			})
 
 			data, err := moviebuffApiServer.GetPerson(context.Background(), "")
 			if err != nil {
@@ -139,14 +140,14 @@ func TestMoviebuff_GetEntity(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp *Entity
+		expectedResp *v1.Entity
 	}{
 		{
 			desc:       "get entity 200 response",
 			method:     "GET",
 			respStatus: http.StatusOK,
 			respBody:   (`{"name":"Test_Entity", "type":"entity"}`),
-			expectedResp: &Entity{
+			expectedResp: &v1.Entity{
 				Name: "Test_Entity",
 				Type: "entity",
 			},
@@ -180,7 +181,7 @@ func TestMoviebuff_GetEntity(t *testing.T) {
 			moviebuffApiServer := New(Config{
 				HostURL:     ts.URL,
 				StaticToken: "staticToken",
-			}, nil)
+			})
 
 			data, err := moviebuffApiServer.GetEntity(context.Background(), "")
 			if err != nil {
@@ -200,14 +201,14 @@ func TestMoviebuff_GetResources(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp *Resources
+		expectedResp *v1.Resources
 	}{
 		{
 			desc:       "get entity 200 response",
 			method:     "GET",
 			respStatus: http.StatusOK,
 			respBody:   (`{"prev":"1",  "next":"2"}`),
-			expectedResp: &Resources{
+			expectedResp: &v1.Resources{
 				Prev: "1",
 				Next: "2",
 			},
@@ -241,7 +242,7 @@ func TestMoviebuff_GetResources(t *testing.T) {
 			moviebuffApiServer := New(Config{
 				HostURL:     ts.URL,
 				StaticToken: "staticToken",
-			}, nil)
+			})
 
 			data, err := moviebuffApiServer.GetResources(context.Background(), "", 0, 0)
 			if err != nil {
@@ -261,7 +262,7 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp []Certification
+		expectedResp []v1.Certification
 	}{
 		{
 			desc:       "get all certifications 200 response",
@@ -291,21 +292,21 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 			}
 			]}`,
 			expectedErr: nil,
-			expectedResp: []Certification{
-				Certification{
+			expectedResp: []v1.Certification{
+				v1.Certification{
 					ChildSafe: false,
 					UUID:      "3dd9313d-005f-4be9-9342-91d72d5d6896",
 					Code:      "A",
-					Country: Country{
+					Country: v1.Country{
 						Name: "India",
 						Code: "IN",
 						UUID: "16a917fb-e15e-43b4-8ee9-5c3e822eb332",
 					},
 				},
-				Certification{ChildSafe: true,
+				v1.Certification{ChildSafe: true,
 					UUID: "892557a5-aa1b-4e0c-8c07-69208cb8003c",
 					Code: "X",
-					Country: Country{
+					Country: v1.Country{
 						Name: "Bulgaria",
 						Code: "BG",
 						UUID: "ed431020-0858-4d2d-a368-e54ba99b0284",
@@ -331,12 +332,12 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 			}
 			]}`,
 			expectedErr: nil,
-			expectedResp: []Certification{
-				Certification{
+			expectedResp: []v1.Certification{
+				v1.Certification{
 					ChildSafe: false,
 					UUID:      "3dd9313d-005f-4be9-9342-91d72d5d6896",
 					Code:      "A",
-					Country: Country{
+					Country: v1.Country{
 						Name: "India",
 						Code: "IN",
 						UUID: "16a917fb-e15e-43b4-8ee9-5c3e822eb332",
@@ -388,7 +389,7 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 			mb := New(Config{
 				HostURL:     ts.URL,
 				StaticToken: "staticToken",
-			}, nil)
+			})
 
 			data, err := mb.GetCertifications(context.Background(), testCase.country)
 			if testCase.expectedErr != nil {
@@ -406,7 +407,7 @@ func TestMoviebuff_GetHolidayCalendar(t *testing.T) {
 		countryID    string
 		calendarID   string
 		respBody     string
-		expectedResp *Calendar
+		expectedResp *v1.Calendar
 		respStatus   int
 	}{
 		{
@@ -433,10 +434,10 @@ func TestMoviebuff_GetHolidayCalendar(t *testing.T) {
 				"timeZone": "Asia/Calcutta"
 				}`,
 
-			expectedResp: &Calendar{
+			expectedResp: &v1.Calendar{
 				ID:   "sample calendar ID",
 				Name: "Holidays in India",
-				Holidays: []Holiday{
+				Holidays: []v1.Holiday{
 					{
 						ID:   "20180414_60o30d9h60o30c1g60o30dr568",
 						Name: "Vaisakhi",
@@ -469,7 +470,7 @@ func TestMoviebuff_GetHolidayCalendar(t *testing.T) {
 			mb := New(Config{
 				HostURL:     ts.URL,
 				StaticToken: "staticToken",
-			}, nil)
+			})
 
 			data, err := mb.GetHolidayCalendar(context.Background(), testCase.countryID)
 			assert.Equal(testCase.expectedResp, data)
