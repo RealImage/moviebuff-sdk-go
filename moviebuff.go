@@ -11,7 +11,6 @@ package moviebuff
 
 import (
 	"context"
-	"errors"
 
 	v2 "github.com/RealImage/moviebuff-sdk-go/v2"
 )
@@ -20,15 +19,15 @@ import (
 type ResourceType = v2.ResourceType
 
 const (
-	RESOURCE_TYPE_PEOPLE   ResourceType = "people"
-	RESOURCE_TYPE_MOVIES   ResourceType = "movies"
-	RESOURCE_TYPE_ENTITIES ResourceType = "entities"
+	RESOURCE_TYPE_PEOPLE   ResourceType = v2.RESOURCE_TYPE_PEOPLE
+	RESOURCE_TYPE_MOVIES   ResourceType = v2.RESOURCE_TYPE_MOVIES
+	RESOURCE_TYPE_ENTITIES ResourceType = v2.RESOURCE_TYPE_ENTITIES
 )
 
 var (
-	ErrInvalidToken         = errors.New("access denied")
-	ErrResponseNotReceived  = errors.New("could not receive valid response")
-	ErrResourceDoesNotExist = errors.New("resource does not exist")
+	ErrInvalidToken         = v2.ErrInvalidToken
+	ErrResponseNotReceived  = v2.ErrResponseNotReceived
+	ErrResourceDoesNotExist = v2.ErrResourceDoesNotExist
 )
 
 // Moviebuff allows to access to information in moviebuff using resource ids.
