@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	v1 "github.com/RealImage/moviebuff-sdk-go"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,14 +17,14 @@ func TestMoviebuff_GetMovie(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp *v1.Movie
+		expectedResp *Movie
 	}{
 		{
 			desc:       "get movie 200 response",
 			method:     "GET",
 			respStatus: http.StatusOK,
 			respBody:   (`{"name":"Test_Movie", "type":"movie"}`),
-			expectedResp: &v1.Movie{
+			expectedResp: &Movie{
 				Name: "Test_Movie",
 				Type: "movie",
 			},
@@ -79,14 +78,14 @@ func TestMoviebuff_GetPerson(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp *v1.Person
+		expectedResp *Person
 	}{
 		{
 			desc:       "get person 200 response",
 			method:     "GET",
 			respStatus: http.StatusOK,
 			respBody:   (`{"name":"Test_Person", "type":"person"}`),
-			expectedResp: &v1.Person{
+			expectedResp: &Person{
 				Name: "Test_Person",
 				Type: "person",
 			},
@@ -140,14 +139,14 @@ func TestMoviebuff_GetEntity(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp *v1.Entity
+		expectedResp *Entity
 	}{
 		{
 			desc:       "get entity 200 response",
 			method:     "GET",
 			respStatus: http.StatusOK,
 			respBody:   (`{"name":"Test_Entity", "type":"entity"}`),
-			expectedResp: &v1.Entity{
+			expectedResp: &Entity{
 				Name: "Test_Entity",
 				Type: "entity",
 			},
@@ -201,14 +200,14 @@ func TestMoviebuff_GetResources(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp *v1.Resources
+		expectedResp *Resources
 	}{
 		{
 			desc:       "get entity 200 response",
 			method:     "GET",
 			respStatus: http.StatusOK,
 			respBody:   (`{"prev":"1",  "next":"2"}`),
-			expectedResp: &v1.Resources{
+			expectedResp: &Resources{
 				Prev: "1",
 				Next: "2",
 			},
@@ -262,7 +261,7 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 		respStatus   int
 		respBody     string
 		expectedErr  error
-		expectedResp []v1.Certification
+		expectedResp []Certification
 	}{
 		{
 			desc:       "get all certifications 200 response",
@@ -292,21 +291,21 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 			}
 			]}`,
 			expectedErr: nil,
-			expectedResp: []v1.Certification{
-				v1.Certification{
+			expectedResp: []Certification{
+				Certification{
 					ChildSafe: false,
 					UUID:      "3dd9313d-005f-4be9-9342-91d72d5d6896",
 					Code:      "A",
-					Country: v1.Country{
+					Country: Country{
 						Name: "India",
 						Code: "IN",
 						UUID: "16a917fb-e15e-43b4-8ee9-5c3e822eb332",
 					},
 				},
-				v1.Certification{ChildSafe: true,
+				Certification{ChildSafe: true,
 					UUID: "892557a5-aa1b-4e0c-8c07-69208cb8003c",
 					Code: "X",
-					Country: v1.Country{
+					Country: Country{
 						Name: "Bulgaria",
 						Code: "BG",
 						UUID: "ed431020-0858-4d2d-a368-e54ba99b0284",
@@ -332,12 +331,12 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 			}
 			]}`,
 			expectedErr: nil,
-			expectedResp: []v1.Certification{
-				v1.Certification{
+			expectedResp: []Certification{
+				Certification{
 					ChildSafe: false,
 					UUID:      "3dd9313d-005f-4be9-9342-91d72d5d6896",
 					Code:      "A",
-					Country: v1.Country{
+					Country: Country{
 						Name: "India",
 						Code: "IN",
 						UUID: "16a917fb-e15e-43b4-8ee9-5c3e822eb332",
@@ -407,7 +406,7 @@ func TestMoviebuff_GetHolidayCalendar(t *testing.T) {
 		countryID    string
 		calendarID   string
 		respBody     string
-		expectedResp *v1.Calendar
+		expectedResp *Calendar
 		respStatus   int
 	}{
 		{
@@ -434,10 +433,10 @@ func TestMoviebuff_GetHolidayCalendar(t *testing.T) {
 				"timeZone": "Asia/Calcutta"
 				}`,
 
-			expectedResp: &v1.Calendar{
+			expectedResp: &Calendar{
 				ID:   "sample calendar ID",
 				Name: "Holidays in India",
-				Holidays: []v1.Holiday{
+				Holidays: []Holiday{
 					{
 						ID:   "20180414_60o30d9h60o30c1g60o30dr568",
 						Name: "Vaisakhi",
