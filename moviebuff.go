@@ -10,26 +10,24 @@
 package moviebuff
 
 import (
-	"encoding/json"
-	"errors"
-	"io/ioutil"
-	"net/http"
-	"strconv"
+	"context"
+
+	v2 "github.com/RealImage/moviebuff-sdk-go/v2"
 )
 
 // Type of resources supported by moviebuff
-type ResourceType string
+type ResourceType = v2.ResourceType
 
 const (
-	RESOURCE_TYPE_PEOPLE   ResourceType = "people"
-	RESOURCE_TYPE_MOVIES   ResourceType = "movies"
-	RESOURCE_TYPE_ENTITIES ResourceType = "entities"
+	RESOURCE_TYPE_PEOPLE   ResourceType = v2.RESOURCE_TYPE_PEOPLE
+	RESOURCE_TYPE_MOVIES   ResourceType = v2.RESOURCE_TYPE_MOVIES
+	RESOURCE_TYPE_ENTITIES ResourceType = v2.RESOURCE_TYPE_ENTITIES
 )
 
 var (
-	ErrInvalidToken         = errors.New("access denied")
-	ErrResponseNotReceived  = errors.New("could not receive valid response")
-	ErrResourceDoesNotExist = errors.New("resource does not exist")
+	ErrInvalidToken         = v2.ErrInvalidToken
+	ErrResponseNotReceived  = v2.ErrResponseNotReceived
+	ErrResourceDoesNotExist = v2.ErrResourceDoesNotExist
 )
 
 // Moviebuff allows to access to information in moviebuff using resource ids.
@@ -51,12 +49,18 @@ type Config struct {
 // The Moviebuff is a service that offers information about movies, people, entities.
 type moviebuff struct {
 	Config
+	v2 v2.Moviebuff
 }
 
-//New returns a QubeAccount interface with a nil logger.
+// New returns a Moviebuff interface.
 func New(config Config) Moviebuff {
+	v2Config := v2.Config{
+		HostURL:     config.HostURL,
+		StaticToken: config.StaticToken,
+	}
 	return &moviebuff{
 		Config: config,
+		v2:     v2.New(v2Config),
 	}
 }
 
@@ -66,43 +70,7 @@ func New(config Config) Moviebuff {
 // Details include release dates, certifications, cast, crew, trailers, posters, purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
 func (m *moviebuff) GetMovie(id string) (*Movie, error) {
-	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/movies/"+id)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := new(http.Client).Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		if res.StatusCode == http.StatusForbidden {
-			return nil, ErrInvalidToken
-		}
-		if res.StatusCode == http.StatusNotFound {
-			return nil, ErrResourceDoesNotExist
-		}
-		return nil, ErrResponseNotReceived
-	}
-
-	content, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	movie := new(Movie)
-	err = json.Unmarshal(content, movie)
-	if err != nil {
-		return nil, err
-	}
-
-	if movie.Type != "movie" {
-		return nil, ErrResourceDoesNotExist
-	}
-
-	return movie, nil
+	return m.v2.GetMovie(context.Background(), id)
 }
 
 // GetPerson fetch a person and his/her basic details with UUID.
@@ -111,43 +79,7 @@ func (m *moviebuff) GetMovie(id string) (*Movie, error) {
 // The people in the database include actors, directors, support personnel, etc.
 // Moviebuff aims to document most, if not all, of the individuals involved in a film.
 func (m *moviebuff) GetPerson(id string) (*Person, error) {
-	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/people/"+id)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := new(http.Client).Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		if res.StatusCode == http.StatusForbidden {
-			return nil, ErrInvalidToken
-		}
-		if res.StatusCode == http.StatusNotFound {
-			return nil, ErrResourceDoesNotExist
-		}
-		return nil, ErrResponseNotReceived
-	}
-
-	content, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	person := new(Person)
-	err = json.Unmarshal(content, person)
-	if err != nil {
-		return nil, err
-	}
-
-	if person.Type != "person" {
-		return nil, ErrResourceDoesNotExist
-	}
-
-	return person, nil
+	return m.v2.GetPerson(context.Background(), id)
 }
 
 // GetEntity fetch an entity and its basic details for UUID.
@@ -155,43 +87,7 @@ func (m *moviebuff) GetPerson(id string) (*Person, error) {
 // Instead of the UUID, this can also be the URL of the company as seen on moviebuff.com: yash-raj-films .
 // Entities are usually organizations like production companies, service providers, etc.
 func (m *moviebuff) GetEntity(id string) (*Entity, error) {
-	r, err := prepareRequest(m.HostURL, m.StaticToken, "/resources/entities/"+id)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := new(http.Client).Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		if res.StatusCode == http.StatusForbidden {
-			return nil, ErrInvalidToken
-		}
-		if res.StatusCode == http.StatusNotFound {
-			return nil, ErrResourceDoesNotExist
-		}
-		return nil, ErrResponseNotReceived
-	}
-
-	content, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	entity := new(Entity)
-	err = json.Unmarshal(content, entity)
-	if err != nil {
-		return nil, err
-	}
-
-	if entity.Type != "entity" {
-		return nil, ErrResourceDoesNotExist
-	}
-
-	return entity, nil
+	return m.v2.GetEntity(context.Background(), id)
 }
 
 // GetResource fetch list of resource of type resourceType.
@@ -203,48 +99,7 @@ func (m *moviebuff) GetEntity(id string) (*Entity, error) {
 // The actual count can be lower than the provided limit. Max value is 50.
 // page represents the page number in the pagination. It starts from 1.
 func (m *moviebuff) GetResources(resourceType ResourceType, limit, page int) (*Resources, error) {
-	u := "/resources/" + string(resourceType) + "?"
-	if limit != 0 {
-		u += "limit=" + strconv.Itoa(limit)
-	}
-
-	if page != 0 {
-		u += "page=" + strconv.Itoa(page)
-	}
-
-	r, err := prepareRequest(m.HostURL, m.StaticToken, u)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := new(http.Client).Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		if res.StatusCode == http.StatusForbidden {
-			return nil, ErrInvalidToken
-		}
-		if res.StatusCode == http.StatusNotFound {
-			return nil, ErrResourceDoesNotExist
-		}
-		return nil, ErrResponseNotReceived
-	}
-
-	content, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	resources := new(Resources)
-	err = json.Unmarshal(content, resources)
-	if err != nil {
-		return nil, err
-	}
-
-	return resources, nil
+	return m.v2.GetResources(context.Background(), resourceType, limit, page)
 }
 
 // GetCertifications fetches a list of all certifications available on Moviebuff
@@ -252,80 +107,10 @@ func (m *moviebuff) GetResources(resourceType ResourceType, limit, page int) (*R
 //GetCertifications takes an optional argument country which can be the Qube Wire Cinemas country UUID or the ISO 2-digit code for this country, eg "IN". If country is provided, GetCertifications returns certifications available for the given country
 //Pass empty value for country to get a list of all certifications across countries
 func (m *moviebuff) GetCertifications(country string) ([]Certification, error) {
-	r, err := prepareRequest(m.HostURL, m.StaticToken, "/certifications")
-	if err != nil {
-		return nil, err
-	}
-	if country != "" {
-		addQueryParams(r, map[string]string{"country": country})
-	}
-
-	res, err := new(http.Client).Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode != http.StatusOK {
-		if res.StatusCode == http.StatusForbidden {
-			return nil, ErrInvalidToken
-		}
-		if res.StatusCode == http.StatusNotFound {
-			return nil, ErrResourceDoesNotExist
-		}
-		return nil, ErrResponseNotReceived
-	}
-
-	content, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	certifications := struct {
-		Data []Certification `json:"data"`
-	}{}
-	err = json.Unmarshal(content, &certifications)
-	if err != nil {
-		return nil, err
-	}
-
-	return certifications.Data, nil
+	return m.v2.GetCertifications(context.Background(), country)
 }
 
 func (m *moviebuff) GetHolidayCalendar(countryID string) (*Calendar, error) {
-	r, err := prepareRequest(m.HostURL, m.StaticToken, "/holidays/"+countryID)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := new(http.Client).Do(r)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	switch res.StatusCode {
-	case http.StatusForbidden:
-		return nil, ErrInvalidToken
-
-	case http.StatusNotFound:
-		return nil, ErrResourceDoesNotExist
-
-	case http.StatusOK:
-		calendarResp, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		calendarInfo := new(Calendar)
-		err = json.Unmarshal(calendarResp, calendarInfo)
-		if err != nil {
-			return nil, err
-		}
-		return calendarInfo, nil
-
-	default:
-		return nil, ErrResponseNotReceived
-	}
+	return m.v2.GetHolidayCalendar(context.Background(), countryID)
 
 }
