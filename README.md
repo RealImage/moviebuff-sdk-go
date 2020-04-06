@@ -1,6 +1,6 @@
 # moviebuff-sdk-go
 
-Go SDK for [Moviebuff](www.moviebuff.com)
+Go SDK for [Moviebuff](https://www.moviebuff.com)
 
 The Moviebuff is a service that offers information about
  movies, people and entities.
