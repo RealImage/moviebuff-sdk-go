@@ -6,3 +6,6 @@ import v2 "github.com/RealImage/moviebuff-sdk-go/v2"
 // purchase links etc.
 // Here movies may include feature films, documentaries, short films etc.
 type Movie = v2.Movie
+
+// ThirdPartyIdentifier contains third-party ids, source.
+type ThirdPartyIdentifier = v2.ThirdPartyIdentifier
