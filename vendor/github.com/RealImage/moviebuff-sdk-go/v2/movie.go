@@ -225,16 +225,19 @@ type Movie struct {
 		AE string `json:"AE"`
 	} `json:"releaseStatuses"`
 
-	ThirdPartyIdentifiers []struct {
-		IDs    []string `json:"ids"`
-		Source struct {
-			UUID string `json:"uuid"`
-			Name string `json:"name"`
-		} `json:"source"`
-	} `json:"thirdPartyIdentifiers"`
+	ThirdPartyIdentifiers []ThirdPartyIdentifier `json:"thirdPartyIdentifiers"`
 
 	MoviebuffURL string `json:"moviebuffUrl"`
 	APIPath      string `json:"apiPath"`
+}
+
+//ThirdPartyIdentifier has third-party sources
+type ThirdPartyIdentifier struct {
+	IDs    []string `json:"ids"`
+	Source struct {
+		UUID string `json:"uuid"`
+		Name string `json:"name"`
+	} `json:"source"`
 }
 
 // GetEarliestReleaseYear return the year at which movie was first released anywhere in the world.
