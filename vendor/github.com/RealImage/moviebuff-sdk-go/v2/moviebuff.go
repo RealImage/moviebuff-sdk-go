@@ -208,18 +208,19 @@ func (m *moviebuff) GetEntity(ctx context.Context, id string) (*Entity, error) {
 // The actual count can be lower than the provided limit. Max value is 50.
 // page represents the page number in the pagination. It starts from 1.
 func (m *moviebuff) GetResources(ctx context.Context, resourceType ResourceType, limit, page int) (*Resources, error) {
-	u := "/resources/" + string(resourceType) + "?"
-	if limit != 0 {
-		u += "limit=" + strconv.Itoa(limit)
-	}
-
-	if page != 0 {
-		u += "page=" + strconv.Itoa(page)
-	}
+	u := "/resources/" + string(resourceType)
 
 	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, u)
 	if err != nil {
 		return nil, err
+	}
+
+	if limit != 0 {
+		addQueryParams(r, map[string]string{"limit": strconv.Itoa(limit)})
+	}
+
+	if page != 0 {
+		addQueryParams(r, map[string]string{"page": strconv.Itoa(page)})
 	}
 
 	res, err := m.Client.Do(r)
