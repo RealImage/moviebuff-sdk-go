@@ -1,4 +1,4 @@
-# github.com/RealImage/moviebuff-sdk-go/v2 v2.0.1-0.20200518164207-bf561700d105
+# github.com/RealImage/moviebuff-sdk-go/v2 v2.0.1-0.20200818143445-86efedfa6fd4
 github.com/RealImage/moviebuff-sdk-go/v2
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew

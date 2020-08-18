@@ -41,6 +41,7 @@ type Moviebuff interface {
 	GetResources(ctx context.Context, resourceType ResourceType, limit, page int) (*Resources, error)
 	GetCertifications(ctx context.Context, country string) ([]Certification, error)
 	GetHolidayCalendar(ctx context.Context, countryID string) (*Calendar, error)
+	GetLanguages(ctx context.Context) ([]Language, error)
 }
 
 type Config struct {
@@ -334,4 +335,42 @@ func (m *moviebuff) GetHolidayCalendar(ctx context.Context, countryID string) (*
 		return nil, ErrResponseNotReceived
 	}
 
+}
+
+func (m *moviebuff) GetLanguages(ctx context.Context) ([]Language, error) {
+	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/languages")
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := m.Client.Do(r)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	switch res.StatusCode {
+	case http.StatusForbidden:
+		return nil, ErrInvalidToken
+
+	case http.StatusNotFound:
+		return nil, ErrResourceDoesNotExist
+
+	case http.StatusOK:
+		content, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		var languages []Language
+		err = json.Unmarshal(content, &languages)
+		if err != nil {
+			return nil, err
+		}
+
+		return languages, nil
+
+	default:
+		return nil, ErrResponseNotReceived
+	}
 }
