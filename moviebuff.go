@@ -38,6 +38,7 @@ type Moviebuff interface {
 	GetResources(resourceType ResourceType, limit, page int) (*Resources, error)
 	GetCertifications(country string) ([]Certification, error)
 	GetHolidayCalendar(countryID string) (*Calendar, error)
+	GetLanguages() ([]Language, error)
 }
 
 type Config struct {
@@ -112,5 +113,9 @@ func (m *moviebuff) GetCertifications(country string) ([]Certification, error) {
 
 func (m *moviebuff) GetHolidayCalendar(countryID string) (*Calendar, error) {
 	return m.v2.GetHolidayCalendar(context.Background(), countryID)
+}
+
+func (m *moviebuff) GetLanguages() ([]Language, error) {
+	return m.v2.GetLanguages(context.Background())
 
 }
