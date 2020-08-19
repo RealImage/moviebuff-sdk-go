@@ -7,5 +7,5 @@ type Language struct {
 	ISO639_2   string   `json:"iso639_2"`
 	IANA       string   `json:"iana"`
 	NativeName string   `json:"native_name"`
-	SpokedIn   []string `json:"spoken_in"`
+	SpokenIn   []string `json:"spoken_in"`
 }

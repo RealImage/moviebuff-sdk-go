@@ -292,11 +292,7 @@ func (m *moviebuff) GetCertifications(ctx context.Context, country string) ([]Ce
 		Data []Certification `json:"data"`
 	}{}
 	err = json.Unmarshal(content, &certifications)
-	if err != nil {
-		return nil, err
-	}
-
-	return certifications.Data, nil
+	return certifications.Data, err
 }
 
 func (m *moviebuff) GetHolidayCalendar(ctx context.Context, countryID string) (*Calendar, error) {
@@ -364,11 +360,7 @@ func (m *moviebuff) GetLanguages(ctx context.Context) ([]Language, error) {
 
 		var languages []Language
 		err = json.Unmarshal(content, &languages)
-		if err != nil {
-			return nil, err
-		}
-
-		return languages, nil
+		return languages, err
 
 	default:
 		return nil, ErrResponseNotReceived
