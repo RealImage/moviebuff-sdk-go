@@ -37,10 +37,16 @@ jobs:
                 run: go test -race -v ./...
 
             -   name: CI fail
-                uses: 8398a7/action-slack@v3
-                with:
-                    status: ${{ job.status }}
-                    fields: repo, message, commit, author, ref
-                env:
-                    SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
                 if: ${{ failure() }}
+                run: |
+                    curl --request POST '${{ secrets.WEBHOOK_URL }}' \
+                    --data-raw '${{ 
+                        format('{{"text": "{0}"}}', 
+                            format('Commit: {0}/commit/{1}<br>Branch: {2}<br>Repository: {0}<br>Workflow URL: {0}/actions/runs/{3}', 
+                                format('https://github.com/{0}', github.repository), 
+                                github.sha, 
+                                github.ref, 
+                                github.run_id
+                            )
+                        ) 
+                    }}'
