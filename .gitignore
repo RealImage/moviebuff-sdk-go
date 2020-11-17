@@ -15,5 +15,5 @@
 .idea/
 .env
 
-# Ingore vendor
+# Ignore vendor
 vendor

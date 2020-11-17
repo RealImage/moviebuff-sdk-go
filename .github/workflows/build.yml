@@ -36,7 +36,7 @@ jobs:
             -   name: Test
                 run: go test -race -v ./...
 
-            -   name: CI fail
+            -   name: Alert CI failure
                 if: ${{ failure() }}
                 run: |
                     curl --request POST '${{ secrets.WEBHOOK_URL }}' \
