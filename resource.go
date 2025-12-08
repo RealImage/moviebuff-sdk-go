@@ -9,5 +9,5 @@ import v2 "github.com/RealImage/moviebuff-sdk-go/v2"
 // he next page in the paginated api. If null there are no more pages at the end.
 type Resources = v2.Resources
 
-//Resource contains information about specific type of the resource like movie, people, entity in moviebuff.
+// Resource contains information about specific type of the resource like movie, people, entity in moviebuff.
 type Resource = v2.Resource
