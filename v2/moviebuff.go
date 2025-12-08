@@ -257,8 +257,8 @@ func (m *moviebuff) GetResources(ctx context.Context, resourceType ResourceType,
 
 // GetCertifications fetches a list of all certifications available on Moviebuff
 
-//GetCertifications takes an optional argument country which can be the Qube Wire Cinemas country UUID or the ISO 2-digit code for this country, eg "IN". If country is provided, GetCertifications returns certifications available for the given country
-//Pass empty value for country to get a list of all certifications across countries
+// GetCertifications takes an optional argument country which can be the Qube Wire Cinemas country UUID or the ISO 2-digit code for this country, eg "IN". If country is provided, GetCertifications returns certifications available for the given country
+// Pass empty value for country to get a list of all certifications across countries
 func (m *moviebuff) GetCertifications(ctx context.Context, country string) ([]Certification, error) {
 	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/certifications")
 	if err != nil {

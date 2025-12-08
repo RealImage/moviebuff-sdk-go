@@ -1,10 +1,10 @@
 package moviebuff
 
 type MappedCPL struct {
-	ID               int             `json:"id"`
-	UUID             string          `json:"uuid"`
-	ContentTitleText string          `json:"content_title_text"`
-	Movie            MappedCPLMovie  `json:"movie"`
+	ID               int            `json:"id"`
+	UUID             string         `json:"uuid"`
+	ContentTitleText string         `json:"content_title_text"`
+	Movie            MappedCPLMovie `json:"movie"`
 }
 
 type MappedCPLMovie struct {
