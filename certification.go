@@ -6,5 +6,5 @@ import v2 "github.com/RealImage/moviebuff-sdk-go/v2"
 // A movie has multiple certifications, one for each country it is released in.
 type Certification = v2.Certification
 
-//Country has country information as available on Qube Wire Cinemas
+// Country has country information as available on Qube Wire Cinemas
 type Country = v2.Country

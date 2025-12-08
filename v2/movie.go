@@ -231,7 +231,7 @@ type Movie struct {
 	APIPath      string `json:"apiPath"`
 }
 
-//ThirdPartyIdentifier has third-party sources
+// ThirdPartyIdentifier has third-party sources
 type ThirdPartyIdentifier struct {
 	IDs    []string `json:"ids"`
 	Source struct {
