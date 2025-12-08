@@ -493,31 +493,81 @@ func TestMoviebuff_GetMappedCPL(t *testing.T) {
 			desc:       "get mapped cpl 200 response",
 			method:     "GET",
 			respStatus: http.StatusOK,
-			respBody:   `{"cpl_id":"test-cpl-123", "part_number":2}`,
+			respBody: `{
+				"id": 476829,
+				"uuid": "ab9754d6-b1cf-4185-8554-4fc505670d7f",
+				"content_title_text": "AndhraKingThal_P2_FTR-2D-V3_S_TE-XX_IN-UA_51-Atmos_4K_ASV_20251125_ASV_SMPTE_VF",
+				"movie": {
+					"id": 99986,
+					"name": "Andhra King Taluka",
+					"uuid": "4f90f6fa-aab6-4717-a0a0-21d7e59dd1fd",
+					"part": {
+						"id": 3,
+						"uuid": "8928a455-2249-4152-94c8-a31249e05d7c",
+						"name": "Part 2"
+					}
+				}
+			}`,
 			expectedResp: &MappedCPL{
-				CPLID:      "test-cpl-123",
-				PartNumber: 2,
+				ID:               476829,
+				UUID:             "ab9754d6-b1cf-4185-8554-4fc505670d7f",
+				ContentTitleText: "AndhraKingThal_P2_FTR-2D-V3_S_TE-XX_IN-UA_51-Atmos_4K_ASV_20251125_ASV_SMPTE_VF",
+				Movie: MappedCPLMovie{
+					ID:   99986,
+					Name: "Andhra King Taluka",
+					UUID: "4f90f6fa-aab6-4717-a0a0-21d7e59dd1fd",
+					Part: &MappedCPLPart{
+						ID:   3,
+						UUID: "8928a455-2249-4152-94c8-a31249e05d7c",
+						Name: "Part 2",
+					},
+				},
+			},
+		},
+		{
+			desc:       "get mapped cpl 200 response without part",
+			method:     "GET",
+			respStatus: http.StatusOK,
+			respBody: `{
+				"id": 476830,
+				"uuid": "test-uuid-456",
+				"content_title_text": "TestMovie_FTR-2D_S_TE-XX_IN-UA_51_4K_ASV_20251125",
+				"movie": {
+					"id": 99987,
+					"name": "Test Movie",
+					"uuid": "test-movie-uuid-789"
+				}
+			}`,
+			expectedResp: &MappedCPL{
+				ID:               476830,
+				UUID:             "test-uuid-456",
+				ContentTitleText: "TestMovie_FTR-2D_S_TE-XX_IN-UA_51_4K_ASV_20251125",
+				Movie: MappedCPLMovie{
+					ID:   99987,
+					Name: "Test Movie",
+					UUID: "test-movie-uuid-789",
+				},
 			},
 		},
 		{
 			desc:        "get mapped cpl 403 response",
 			method:      "GET",
 			respStatus:  http.StatusForbidden,
-			respBody:    `{"cpl_id":"test-cpl-123", "part_number":2}`,
+			respBody:    `{"error": "forbidden"}`,
 			expectedErr: ErrInvalidToken,
 		},
 		{
 			desc:        "get mapped cpl 404 response",
 			method:      "GET",
 			respStatus:  http.StatusNotFound,
-			respBody:    `{"cpl_id":"test-cpl-123", "part_number":2}`,
+			respBody:    `{"error": "not found"}`,
 			expectedErr: ErrResourceDoesNotExist,
 		},
 		{
 			desc:        "get mapped cpl 500 response",
 			method:      "GET",
 			respStatus:  http.StatusInternalServerError,
-			respBody:    `{"cpl_id":"test-cpl-123", "part_number":2}`,
+			respBody:    `{"error": "internal server error"}`,
 			expectedErr: ErrResponseNotReceived,
 		},
 		{
