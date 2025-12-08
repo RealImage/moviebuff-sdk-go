@@ -42,6 +42,7 @@ type Moviebuff interface {
 	GetCertifications(ctx context.Context, country string) ([]Certification, error)
 	GetHolidayCalendar(ctx context.Context, countryID string) (*Calendar, error)
 	GetLanguages(ctx context.Context) ([]Language, error)
+	GetMappedCPL(ctx context.Context, cplID string) (*MappedCPL, error)
 }
 
 type Config struct {
@@ -361,6 +362,47 @@ func (m *moviebuff) GetLanguages(ctx context.Context) ([]Language, error) {
 		var languages []Language
 		err = json.Unmarshal(content, &languages)
 		return languages, err
+
+	default:
+		return nil, ErrResponseNotReceived
+	}
+}
+
+// GetMappedCPL fetches mapped CPL (Composition Playlist) information for a given CPL ID.
+//
+// The CPL ID can be the UUID or identifier of the CPL resource.
+func (m *moviebuff) GetMappedCPL(ctx context.Context, cplID string) (*MappedCPL, error) {
+	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/api/v2/mapped_cpls/"+cplID)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := m.Client.Do(r)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	switch res.StatusCode {
+	case http.StatusForbidden:
+		return nil, ErrInvalidToken
+
+	case http.StatusNotFound:
+		return nil, ErrResourceDoesNotExist
+
+	case http.StatusOK:
+		content, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+
+		mappedCPL := new(MappedCPL)
+		err = json.Unmarshal(content, mappedCPL)
+		if err != nil {
+			return nil, err
+		}
+
+		return mappedCPL, nil
 
 	default:
 		return nil, ErrResponseNotReceived

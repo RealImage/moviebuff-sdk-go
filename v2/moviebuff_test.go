@@ -2,6 +2,7 @@ package moviebuff
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -477,4 +478,86 @@ func TestMoviebuff_GetHolidayCalendar(t *testing.T) {
 		})
 	}
 
+}
+
+func TestMoviebuff_GetMappedCPL(t *testing.T) {
+	var testCases = []struct {
+		desc         string
+		method       string
+		respStatus   int
+		respBody     string
+		expectedErr  error
+		expectedResp *MappedCPL
+	}{
+		{
+			desc:       "get mapped cpl 200 response",
+			method:     "GET",
+			respStatus: http.StatusOK,
+			respBody:   `{"cpl_id":"test-cpl-123", "part_number":2}`,
+			expectedResp: &MappedCPL{
+				CPLID:      "test-cpl-123",
+				PartNumber: 2,
+			},
+		},
+		{
+			desc:        "get mapped cpl 403 response",
+			method:      "GET",
+			respStatus:  http.StatusForbidden,
+			respBody:    `{"cpl_id":"test-cpl-123", "part_number":2}`,
+			expectedErr: ErrInvalidToken,
+		},
+		{
+			desc:        "get mapped cpl 404 response",
+			method:      "GET",
+			respStatus:  http.StatusNotFound,
+			respBody:    `{"cpl_id":"test-cpl-123", "part_number":2}`,
+			expectedErr: ErrResourceDoesNotExist,
+		},
+		{
+			desc:        "get mapped cpl 500 response",
+			method:      "GET",
+			respStatus:  http.StatusInternalServerError,
+			respBody:    `{"cpl_id":"test-cpl-123", "part_number":2}`,
+			expectedErr: ErrResponseNotReceived,
+		},
+		{
+			desc:        "get mapped cpl invalid json response",
+			method:      "GET",
+			respStatus:  http.StatusOK,
+			respBody:    `invalid json`,
+			expectedErr: &json.SyntaxError{},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.desc, func(t *testing.T) {
+			assert := assert.New(t)
+
+			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter,
+				r *http.Request) {
+				w.WriteHeader(testCase.respStatus)
+				w.Write([]byte(testCase.respBody))
+			}))
+
+			defer ts.Close()
+
+			moviebuffApiServer := New(Config{
+				HostURL:     ts.URL,
+				StaticToken: "staticToken",
+			})
+
+			data, err := moviebuffApiServer.GetMappedCPL(context.Background(), "test-cpl-id")
+			if testCase.expectedErr != nil {
+				// For json errors, just check that an error occurred
+				if _, ok := testCase.expectedErr.(*json.SyntaxError); ok {
+					assert.Error(err)
+				} else {
+					assert.EqualValues(testCase.expectedErr, err)
+				}
+			} else {
+				assert.NoError(err)
+				assert.Equal(testCase.expectedResp, data)
+			}
+		})
+	}
 }
