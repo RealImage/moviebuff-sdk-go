@@ -13,7 +13,7 @@ type Certification struct {
 	Country Country `json:"country"`
 }
 
-//Country has country information as available on Qube Wire Cinemas
+// Country has country information as available on Qube Wire Cinemas
 type Country struct {
 	//Country name as on Qube Wire Cinemas
 	Name string `json:"name"`

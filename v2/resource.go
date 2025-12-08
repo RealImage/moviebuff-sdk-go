@@ -11,7 +11,7 @@ type Resources struct {
 	Next string     `json:"next"`
 }
 
-//Resource contains information about specific type of the resource like movie, people, entity in moviebuff.
+// Resource contains information about specific type of the resource like movie, people, entity in moviebuff.
 type Resource struct {
 	// Name of the resource
 	Name string `json:"name"`
