@@ -39,6 +39,7 @@ type Moviebuff interface {
 	GetCertifications(country string) ([]Certification, error)
 	GetHolidayCalendar(countryID string) (*Calendar, error)
 	GetLanguages() ([]Language, error)
+	GetMappedCPL(cplID string) (*MappedCPL, error)
 }
 
 type Config struct {
@@ -118,4 +119,11 @@ func (m *moviebuff) GetHolidayCalendar(countryID string) (*Calendar, error) {
 func (m *moviebuff) GetLanguages() ([]Language, error) {
 	return m.v2.GetLanguages(context.Background())
 
+}
+
+// GetMappedCPL fetches mapped CPL (Composition Playlist) information for a given CPL ID.
+//
+// The CPL ID can be the UUID or identifier of the CPL resource.
+func (m *moviebuff) GetMappedCPL(cplID string) (*MappedCPL, error) {
+	return m.v2.GetMappedCPL(context.Background(), cplID)
 }
