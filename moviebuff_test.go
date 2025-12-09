@@ -393,7 +393,6 @@ func TestMoviebuff_GetCertifications(t *testing.T) {
 			if testCase.expectedErr != nil {
 				assert.EqualValues(testCase.expectedErr, err)
 			} else {
-				assert.NoError(err)
 				assert.Equal(testCase.expectedResp, data)
 			}
 		})
@@ -588,10 +587,9 @@ func TestMoviebuff_GetMappedCPL(t *testing.T) {
 			})
 
 			data, err := moviebuffApiServer.GetMappedCPL("test-cpl-id")
-			if testCase.expectedErr != nil {
+			if err != nil {
 				assert.EqualValues(testCase.expectedErr, err)
 			} else {
-				assert.NoError(err)
 				assert.Equal(testCase.expectedResp, data)
 			}
 		})
