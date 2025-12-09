@@ -372,7 +372,7 @@ func (m *moviebuff) GetLanguages(ctx context.Context) ([]Language, error) {
 //
 // The CPL ID can be the UUID or identifier of the CPL resource.
 func (m *moviebuff) GetMappedCPL(ctx context.Context, cplID string) (*MappedCPL, error) {
-	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/api/v2/mapped_cpls/"+cplID)
+	r, err := prepareRequest(ctx, m.HostURL, m.StaticToken, "/mapped_cpls/"+cplID)
 	if err != nil {
 		return nil, err
 	}
