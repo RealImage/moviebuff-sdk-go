@@ -29,6 +29,9 @@ type Movie struct {
 	// Release Dates mapped against their corresponding country code like "IN" : "2013-12-20".
 	ReleaseDates map[string]string `json:"releaseDates"`
 
+	// GlobalReleaseDate is the global release date of the movie.
+	GlobalReleaseDate string `json:"globalReleaseDate"`
+
 	// Certifications mapped against their corresponding country code like "IN" : "A".
 	Certifications map[string]string `json:"certifications"`
 
