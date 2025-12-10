@@ -30,6 +30,16 @@ func TestMoviebuff_GetMovie(t *testing.T) {
 				Type: "movie",
 			},
 		}, {
+			desc:       "get movie with globalReleaseDate",
+			method:     "GET",
+			respStatus: http.StatusOK,
+			respBody:   (`{"name":"Test_Movie", "type":"movie", "globalReleaseDate":"2024-01-15"}`),
+			expectedResp: &Movie{
+				Name:              "Test_Movie",
+				Type:              "movie",
+				GlobalReleaseDate: "2024-01-15",
+			},
+		}, {
 			desc:        "get movie 403 response",
 			method:      "GET",
 			respStatus:  http.StatusForbidden,
